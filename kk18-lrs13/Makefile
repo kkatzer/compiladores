@@ -13,4 +13,4 @@ main.o : main.h main.c
 	gcc -c main.c -o main.o
 
 clean :
-	rm -f parser.tab.* lex.yy.c parser.output main.o
+	rm -f parser.tab.* lex.yy.c parser.output main.o main
