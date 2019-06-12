@@ -39,77 +39,100 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     PROGRAM = 258,
-     ABRE_PARENTESES = 259,
-     FECHA_PARENTESES = 260,
-     VIRGULA = 261,
-     PONTO_E_VIRGULA = 262,
-     DOIS_PONTOS = 263,
-     PONTO = 264,
-     T_BEGIN = 265,
-     T_END = 266,
-     VAR = 267,
-     IDENT = 268,
-     ATRIBUICAO = 269,
-     LABEL = 270,
-     TYPE = 271,
-     ARRAY = 272,
-     OF = 273,
-     PROCEDURE = 274,
-     FUNCTION = 275,
-     GOTO = 276,
-     IF = 277,
-     THEN = 278,
-     ELSE = 279,
-     WHILE = 280,
-     DO = 281,
-     MAIS = 282,
-     MENOS = 283,
-     OR = 284,
-     MULTIPLICACAO = 285,
-     DIV = 286,
-     AND = 287,
-     NOT = 288
+     T_IGNORE = 258,
+     T_IDENTIFIER = 259,
+     T_DOUBLE = 260,
+     T_INTEGER = 261,
+     T_EQ = 262,
+     T_NEQ = 263,
+     T_GTE = 264,
+     T_GT = 265,
+     T_LTE = 266,
+     T_LT = 267,
+     T_ASSIGNMENT = 268,
+     T_LPAR = 269,
+     T_RPAR = 270,
+     T_DOT = 271,
+     T_COMMA = 272,
+     T_COLON = 273,
+     T_SEMICOLON = 274,
+     T_PLUS = 275,
+     T_MINUS = 276,
+     T_STAR = 277,
+     T_DIV = 278,
+     T_AND = 279,
+     T_OR = 280,
+     T_NOT = 281,
+     T_PROGRAM = 282,
+     T_BEGIN = 283,
+     T_END = 284,
+     T_LABEL = 285,
+     T_VAR = 286,
+     T_FUNCTION = 287,
+     T_PROCEDURE = 288,
+     T_IF = 289,
+     T_THEN = 290,
+     T_ELSE = 291,
+     T_WHILE = 292,
+     T_DO = 293,
+     T_GOTO = 294,
+     T_READ = 295,
+     T_WRITE = 296
    };
 #endif
 /* Tokens.  */
-#define PROGRAM 258
-#define ABRE_PARENTESES 259
-#define FECHA_PARENTESES 260
-#define VIRGULA 261
-#define PONTO_E_VIRGULA 262
-#define DOIS_PONTOS 263
-#define PONTO 264
-#define T_BEGIN 265
-#define T_END 266
-#define VAR 267
-#define IDENT 268
-#define ATRIBUICAO 269
-#define LABEL 270
-#define TYPE 271
-#define ARRAY 272
-#define OF 273
-#define PROCEDURE 274
-#define FUNCTION 275
-#define GOTO 276
-#define IF 277
-#define THEN 278
-#define ELSE 279
-#define WHILE 280
-#define DO 281
-#define MAIS 282
-#define MENOS 283
-#define OR 284
-#define MULTIPLICACAO 285
-#define DIV 286
-#define AND 287
-#define NOT 288
+#define T_IGNORE 258
+#define T_IDENTIFIER 259
+#define T_DOUBLE 260
+#define T_INTEGER 261
+#define T_EQ 262
+#define T_NEQ 263
+#define T_GTE 264
+#define T_GT 265
+#define T_LTE 266
+#define T_LT 267
+#define T_ASSIGNMENT 268
+#define T_LPAR 269
+#define T_RPAR 270
+#define T_DOT 271
+#define T_COMMA 272
+#define T_COLON 273
+#define T_SEMICOLON 274
+#define T_PLUS 275
+#define T_MINUS 276
+#define T_STAR 277
+#define T_DIV 278
+#define T_AND 279
+#define T_OR 280
+#define T_NOT 281
+#define T_PROGRAM 282
+#define T_BEGIN 283
+#define T_END 284
+#define T_LABEL 285
+#define T_VAR 286
+#define T_FUNCTION 287
+#define T_PROCEDURE 288
+#define T_IF 289
+#define T_THEN 290
+#define T_ELSE 291
+#define T_WHILE 292
+#define T_DO 293
+#define T_GOTO 294
+#define T_READ 295
+#define T_WRITE 296
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union YYSTYPE
+#line 7 "parser.y"
+{
+    char str[TOKEN_SIZE];
+}
+/* Line 1529 of yacc.c.  */
+#line 135 "parser.h"
+	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1

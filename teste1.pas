@@ -1,5 +1,7 @@
 program exemplo75 (input, output);
-var m,n :  integer;
-begin    
+var k,f1,f2 :  integer;
+i : boolean;
+begin
+f1:=0; f2:=1; k:=1;
+i:=2=2;
 end.
-
