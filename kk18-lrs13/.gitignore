@@ -1,0 +1,5 @@
+lex.yy.c
+main
+main.o
+parser.tab.*
+parser.output
