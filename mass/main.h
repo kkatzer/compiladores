@@ -113,6 +113,7 @@ node node_pop (node p);
 void parser_update_params (char* str_type);
 void parser_routine_declaration ();
 void parser_routine_identification (int category, char* identifier);
+void parser_forward_identification (int category, char* identifier);
 
 #include "parser.h"
 

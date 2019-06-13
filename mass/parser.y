@@ -52,6 +52,7 @@
 %token T_GOTO
 %token T_READ
 %token T_WRITE
+%token T_FORWARD
 
 %type <str> T_IDENTIFIER
 %type <str> T_INTEGER
@@ -217,6 +218,7 @@ routine_declaration :
 
 procedure_declaration :
     procedure_heading T_SEMICOLON block
+    | procedure_forward T_SEMICOLON T_FORWARD T_SEMICOLON;
     ;
 
 procedure_heading :
@@ -228,6 +230,18 @@ procedure_identification :
     T_PROCEDURE T_IDENTIFIER
     {
         parser_routine_identification (CAT_PROCEDURE, $2);
+    }
+    ;
+
+procedure_forward :
+    procedure_forward_identification
+    | procedure_forward_identification forward_parameter_section
+    ;
+
+procedure_forward_identification :
+    T_PROCEDURE T_IDENTIFIER
+    {
+        parser_forward_identification (CAT_PROCEDURE, $2);
     }
     ;
 
@@ -291,6 +305,20 @@ formal_parameter :
     }
     ;
 
+forward_parameter_section :
+    T_LPAR forward_parameter_list T_RPAR
+    ;
+
+forward_parameter_list :
+    forward_parameter
+    | forward_parameter T_SEMICOLON forward_parameter_list
+    ;
+
+forward_parameter :
+    T_IDENTIFIER T_COLON T_IDENTIFIER
+    | T_VAR T_IDENTIFIER T_COLON T_IDENTIFIER
+    ;
+
 statement_part :
     T_BEGIN statement_list T_END
     ;
@@ -310,13 +338,13 @@ statement :
     {
         dump_statements();
     }
-    | T_IDENTIFIER T_COLON
+    | T_INTEGER T_COLON
     {
         node p = node_get (symbol, $1);
         node r = node_get_routine ();
 
         char* label = malloc (sizeof(char) * TOKEN_SIZE);
-        sprintf (label, "R%02d: ENRT %d, %d",
+        sprintf (label, "R%02d: ENRT %d %d",
             p->label, p->level, r->mem_count);
 
         node_push (stmt, get_line (label, "", $1, 0), "",

@@ -4,7 +4,13 @@ Terminais sem uso na gramática
    T_DOUBLE
 
 
-Estado 115 conflitos: 1 de deslocamento/redução
+Regras inúteis no analisador por causa de conflitos
+
+   35 procedure_forward_identification: T_PROCEDURE T_IDENTIFIER
+
+
+Estado 54 conflitos: 2 de redução/redução
+Estado 131 conflitos: 1 de deslocamento/redução
 
 
 Gramática
@@ -56,125 +62,139 @@ Gramática
    27                    | function_declaration
 
    28 procedure_declaration: procedure_heading T_SEMICOLON block
+   29                      | procedure_forward T_SEMICOLON T_FORWARD T_SEMICOLON
 
-   29 procedure_heading: procedure_identification
-   30                  | procedure_identification formal_parameter_section
+   30 procedure_heading: procedure_identification
+   31                  | procedure_identification formal_parameter_section
 
-   31 procedure_identification: T_PROCEDURE T_IDENTIFIER
+   32 procedure_identification: T_PROCEDURE T_IDENTIFIER
 
-   32 function_declaration: function_heading T_SEMICOLON block
+   33 procedure_forward: procedure_forward_identification
+   34                  | procedure_forward_identification forward_parameter_section
 
-   33 function_heading: function_identification T_COLON T_IDENTIFIER
-   34                 | function_identification formal_parameter_section T_COLON T_IDENTIFIER
+   35 procedure_forward_identification: T_PROCEDURE T_IDENTIFIER
 
-   35 function_identification: T_FUNCTION T_IDENTIFIER
+   36 function_declaration: function_heading T_SEMICOLON block
 
-   36 formal_parameter_section: T_LPAR formal_parameter_list T_RPAR
+   37 function_heading: function_identification T_COLON T_IDENTIFIER
+   38                 | function_identification formal_parameter_section T_COLON T_IDENTIFIER
 
-   37 formal_parameter_list: formal_parameter
-   38                      | formal_parameter T_SEMICOLON formal_parameter_list
+   39 function_identification: T_FUNCTION T_IDENTIFIER
 
-   39 formal_parameter: T_IDENTIFIER T_COLON T_IDENTIFIER
-   40                 | T_VAR T_IDENTIFIER T_COLON T_IDENTIFIER
+   40 formal_parameter_section: T_LPAR formal_parameter_list T_RPAR
 
-   41 statement_part: T_BEGIN statement_list T_END
+   41 formal_parameter_list: formal_parameter
+   42                      | formal_parameter T_SEMICOLON formal_parameter_list
 
-   42 statement_list: statement
-   43               | statement_list T_SEMICOLON statement
+   43 formal_parameter: T_IDENTIFIER T_COLON T_IDENTIFIER
+   44                 | T_VAR T_IDENTIFIER T_COLON T_IDENTIFIER
 
-   44 statements: statement
-   45           | statement_part
+   45 forward_parameter_section: T_LPAR forward_parameter_list T_RPAR
 
-   46 statement: statement_nolabel
+   46 forward_parameter_list: forward_parameter
+   47                       | forward_parameter T_SEMICOLON forward_parameter_list
 
-   47 $@4: %empty
+   48 forward_parameter: T_IDENTIFIER T_COLON T_IDENTIFIER
+   49                  | T_VAR T_IDENTIFIER T_COLON T_IDENTIFIER
 
-   48 statement: T_IDENTIFIER T_COLON $@4 statement_nolabel
+   50 statement_part: T_BEGIN statement_list T_END
 
-   49 statement_nolabel: assignment
-   50                  | call_noparams
-   51                  | call
-   52                  | goto
-   53                  | read
-   54                  | write
-   55                  | condition
-   56                  | while
+   51 statement_list: statement
+   52               | statement_list T_SEMICOLON statement
 
-   57 assignment: T_IDENTIFIER T_ASSIGNMENT expression
+   53 statements: statement
+   54           | statement_part
 
-   58 call_noparams: T_IDENTIFIER
+   55 statement: statement_nolabel
 
-   59 $@5: %empty
+   56 $@4: %empty
 
-   60 call: T_IDENTIFIER $@5 T_LPAR expression_list T_RPAR
+   57 statement: T_INTEGER T_COLON $@4 statement_nolabel
 
-   61 goto: T_GOTO T_INTEGER
+   58 statement_nolabel: assignment
+   59                  | call_noparams
+   60                  | call
+   61                  | goto
+   62                  | read
+   63                  | write
+   64                  | condition
+   65                  | while
 
-   62 read: T_READ T_LPAR read_expression_list T_RPAR
+   66 assignment: T_IDENTIFIER T_ASSIGNMENT expression
 
-   63 read_expression_list: read_expression
-   64                     | read_expression T_COMMA read_expression_list
+   67 call_noparams: T_IDENTIFIER
 
-   65 $@6: %empty
+   68 $@5: %empty
 
-   66 read_expression: $@6 T_IDENTIFIER
+   69 call: T_IDENTIFIER $@5 T_LPAR expression_list T_RPAR
 
-   67 write: T_WRITE T_LPAR write_expression_list T_RPAR
+   70 goto: T_GOTO T_INTEGER
 
-   68 write_expression_list: write_expression
-   69                      | write_expression T_COMMA write_expression_list
+   71 read: T_READ T_LPAR read_expression_list T_RPAR
 
-   70 write_expression: expression
+   72 read_expression_list: read_expression
+   73                     | read_expression T_COMMA read_expression_list
 
-   71 condition: condition_if statements
+   74 $@6: %empty
 
-   72 $@7: %empty
+   75 read_expression: $@6 T_IDENTIFIER
 
-   73 condition: condition_if statements T_ELSE $@7 statements
+   76 write: T_WRITE T_LPAR write_expression_list T_RPAR
 
-   74 condition_if: T_IF expression T_THEN
+   77 write_expression_list: write_expression
+   78                      | write_expression T_COMMA write_expression_list
 
-   75 $@8: %empty
+   79 write_expression: expression
 
-   76 $@9: %empty
+   80 condition: condition_if statements
 
-   77 while: T_WHILE $@8 expression T_DO $@9 statements
+   81 $@7: %empty
 
-   78 expression_list: expression
+   82 condition: condition_if statements T_ELSE $@7 statements
 
-   79 $@10: %empty
+   83 condition_if: T_IF expression T_THEN
 
-   80 expression_list: expression T_COMMA $@10 expression_list
+   84 $@8: %empty
 
-   81 expression: simple_expression
-   82           | simple_expression relop simple_expression
+   85 $@9: %empty
 
-   83 simple_expression: term
-   84                  | simple_expression addop term
+   86 while: T_WHILE $@8 expression T_DO $@9 statements
 
-   85 term: factor
-   86     | term mulop factor
+   87 expression_list: expression
 
-   87 factor: T_IDENTIFIER
-   88       | call
-   89       | T_INTEGER
-   90       | T_LPAR expression T_RPAR
-   91       | T_NOT factor
+   88 $@10: %empty
 
-   92 addop: T_PLUS
-   93      | T_MINUS
-   94      | T_OR
+   89 expression_list: expression T_COMMA $@10 expression_list
 
-   95 mulop: T_STAR
-   96      | T_DIV
-   97      | T_AND
+   90 expression: simple_expression
+   91           | simple_expression relop simple_expression
 
-   98 relop: T_EQ
-   99      | T_NEQ
-  100      | T_LT
-  101      | T_GT
-  102      | T_LTE
-  103      | T_GTE
+   92 simple_expression: term
+   93                  | simple_expression addop term
+
+   94 term: factor
+   95     | term mulop factor
+
+   96 factor: T_IDENTIFIER
+   97       | call
+   98       | T_INTEGER
+   99       | T_LPAR expression T_RPAR
+  100       | T_NOT factor
+
+  101 addop: T_PLUS
+  102      | T_MINUS
+  103      | T_OR
+
+  104 mulop: T_STAR
+  105      | T_DIV
+  106      | T_AND
+
+  107 relop: T_EQ
+  108      | T_NEQ
+  109      | T_LT
+  110      | T_GT
+  111      | T_LTE
+  112      | T_GTE
 
 
 Terminais, com as regras onde eles aparecem
@@ -182,169 +202,180 @@ Terminais, com as regras onde eles aparecem
 $end (0) 0
 error (256)
 T_IGNORE (258)
-T_IDENTIFIER (259) 2 3 4 17 18 21 31 33 34 35 39 40 48 57 58 60 66
-    87
+T_IDENTIFIER (259) 2 3 4 17 18 21 32 35 37 38 39 43 44 48 49 66 67
+    69 75 96
 T_DOUBLE (260)
-T_INTEGER (261) 12 61 89
-T_EQ (262) 98
-T_NEQ (263) 99
-T_GTE (264) 103
-T_GT (265) 101
-T_LTE (266) 102
-T_LT (267) 100
-T_ASSIGNMENT (268) 57
-T_LPAR (269) 2 36 60 62 67 90
-T_RPAR (270) 2 36 60 62 67 90
+T_INTEGER (261) 12 57 70 98
+T_EQ (262) 107
+T_NEQ (263) 108
+T_GTE (264) 112
+T_GT (265) 110
+T_LTE (266) 111
+T_LT (267) 109
+T_ASSIGNMENT (268) 66
+T_LPAR (269) 2 40 45 69 71 76 99
+T_RPAR (270) 2 40 45 69 71 76 99
 T_DOT (271) 2
-T_COMMA (272) 4 11 20 64 69 80
-T_COLON (273) 17 18 33 34 39 40 48
-T_SEMICOLON (274) 2 9 14 16 23 25 28 32 38 43
-T_PLUS (275) 92
-T_MINUS (276) 93
-T_STAR (277) 95
-T_DIV (278) 96
-T_AND (279) 97
-T_OR (280) 94
-T_NOT (281) 91
+T_COMMA (272) 4 11 20 73 78 89
+T_COLON (273) 17 18 37 38 43 44 48 49 57
+T_SEMICOLON (274) 2 9 14 16 23 25 28 29 36 42 47 52
+T_PLUS (275) 101
+T_MINUS (276) 102
+T_STAR (277) 104
+T_DIV (278) 105
+T_AND (279) 106
+T_OR (280) 103
+T_NOT (281) 100
 T_PROGRAM (282) 2
-T_BEGIN (283) 41
-T_END (284) 41
+T_BEGIN (283) 50
+T_END (284) 50
 T_LABEL (285) 9
-T_VAR (286) 14 17 40
-T_FUNCTION (287) 35
-T_PROCEDURE (288) 31
-T_IF (289) 74
-T_THEN (290) 74
-T_ELSE (291) 73
-T_WHILE (292) 77
-T_DO (293) 77
-T_GOTO (294) 61
-T_READ (295) 62
-T_WRITE (296) 67
+T_VAR (286) 14 17 44 49
+T_FUNCTION (287) 39
+T_PROCEDURE (288) 32 35
+T_IF (289) 83
+T_THEN (290) 83
+T_ELSE (291) 82
+T_WHILE (292) 86
+T_DO (293) 86
+T_GOTO (294) 70
+T_READ (295) 71
+T_WRITE (296) 76
+T_FORWARD (297) 29
 
 
 Não terminais com as regras onde eles aparecem
 
-$accept (42)
+$accept (43)
     à esquerda: 0
-program (43)
+program (44)
     à esquerda: 2, à direita: 0
-$@1 (44)
+$@1 (45)
     à esquerda: 1, à direita: 2
-list_ignore (45)
+list_ignore (46)
     à esquerda: 3 4, à direita: 2 4
-block (46)
-    à esquerda: 7, à direita: 2 28 32
-$@2 (47)
+block (47)
+    à esquerda: 7, à direita: 2 28 36
+$@2 (48)
     à esquerda: 5, à direita: 7
-$@3 (48)
+$@3 (49)
     à esquerda: 6, à direita: 7
-label_declaration_part (49)
+label_declaration_part (50)
     à esquerda: 8 9, à direita: 7
-label_list (50)
+label_list (51)
     à esquerda: 10 11, à direita: 9 11
-label_identifier (51)
+label_identifier (52)
     à esquerda: 12, à direita: 10 11
-variable_declaration_part (52)
+variable_declaration_part (53)
     à esquerda: 13 14, à direita: 7
-variable_declaration_list (53)
+variable_declaration_list (54)
     à esquerda: 15 16, à direita: 14 16
-variable_declaration (54)
+variable_declaration (55)
     à esquerda: 17 18, à direita: 15 16
-variable_list (55)
+variable_list (56)
     à esquerda: 19 20, à direita: 17 18 20
-variable_var (56)
+variable_var (57)
     à esquerda: 21, à direita: 19 20
-routine_declaration_part (57)
+routine_declaration_part (58)
     à esquerda: 22 23, à direita: 7
-routine_declaration_list (58)
+routine_declaration_list (59)
     à esquerda: 24 25, à direita: 23 25
-routine_declaration (59)
+routine_declaration (60)
     à esquerda: 26 27, à direita: 24 25
-procedure_declaration (60)
-    à esquerda: 28, à direita: 26
-procedure_heading (61)
-    à esquerda: 29 30, à direita: 28
-procedure_identification (62)
-    à esquerda: 31, à direita: 29 30
-function_declaration (63)
-    à esquerda: 32, à direita: 27
-function_heading (64)
-    à esquerda: 33 34, à direita: 32
-function_identification (65)
+procedure_declaration (61)
+    à esquerda: 28 29, à direita: 26
+procedure_heading (62)
+    à esquerda: 30 31, à direita: 28
+procedure_identification (63)
+    à esquerda: 32, à direita: 30 31
+procedure_forward (64)
+    à esquerda: 33 34, à direita: 29
+procedure_forward_identification (65)
     à esquerda: 35, à direita: 33 34
-formal_parameter_section (66)
-    à esquerda: 36, à direita: 30 34
-formal_parameter_list (67)
-    à esquerda: 37 38, à direita: 36 38
-formal_parameter (68)
-    à esquerda: 39 40, à direita: 37 38
-statement_part (69)
-    à esquerda: 41, à direita: 7 45
-statement_list (70)
-    à esquerda: 42 43, à direita: 41 43
-statements (71)
-    à esquerda: 44 45, à direita: 71 73 77
-statement (72)
-    à esquerda: 46 48, à direita: 42 43 44
-$@4 (73)
-    à esquerda: 47, à direita: 48
-statement_nolabel (74)
-    à esquerda: 49 50 51 52 53 54 55 56, à direita: 46 48
-assignment (75)
-    à esquerda: 57, à direita: 49
-call_noparams (76)
-    à esquerda: 58, à direita: 50
-call (77)
-    à esquerda: 60, à direita: 51 88
-$@5 (78)
-    à esquerda: 59, à direita: 60
-goto (79)
-    à esquerda: 61, à direita: 52
-read (80)
-    à esquerda: 62, à direita: 53
-read_expression_list (81)
-    à esquerda: 63 64, à direita: 62 64
-read_expression (82)
-    à esquerda: 66, à direita: 63 64
-$@6 (83)
-    à esquerda: 65, à direita: 66
-write (84)
-    à esquerda: 67, à direita: 54
-write_expression_list (85)
-    à esquerda: 68 69, à direita: 67 69
-write_expression (86)
-    à esquerda: 70, à direita: 68 69
-condition (87)
-    à esquerda: 71 73, à direita: 55
-$@7 (88)
-    à esquerda: 72, à direita: 73
-condition_if (89)
-    à esquerda: 74, à direita: 71 73
-while (90)
-    à esquerda: 77, à direita: 56
-$@8 (91)
-    à esquerda: 75, à direita: 77
-$@9 (92)
-    à esquerda: 76, à direita: 77
-expression_list (93)
-    à esquerda: 78 80, à direita: 60 80
-$@10 (94)
-    à esquerda: 79, à direita: 80
-expression (95)
-    à esquerda: 81 82, à direita: 57 70 74 77 78 80 90
-simple_expression (96)
-    à esquerda: 83 84, à direita: 81 82 84
-term (97)
-    à esquerda: 85 86, à direita: 83 84 86
-factor (98)
-    à esquerda: 87 88 89 90 91, à direita: 85 86 91
-addop (99)
-    à esquerda: 92 93 94, à direita: 84
-mulop (100)
-    à esquerda: 95 96 97, à direita: 86
-relop (101)
-    à esquerda: 98 99 100 101 102 103, à direita: 82
+function_declaration (66)
+    à esquerda: 36, à direita: 27
+function_heading (67)
+    à esquerda: 37 38, à direita: 36
+function_identification (68)
+    à esquerda: 39, à direita: 37 38
+formal_parameter_section (69)
+    à esquerda: 40, à direita: 31 38
+formal_parameter_list (70)
+    à esquerda: 41 42, à direita: 40 42
+formal_parameter (71)
+    à esquerda: 43 44, à direita: 41 42
+forward_parameter_section (72)
+    à esquerda: 45, à direita: 34
+forward_parameter_list (73)
+    à esquerda: 46 47, à direita: 45 47
+forward_parameter (74)
+    à esquerda: 48 49, à direita: 46 47
+statement_part (75)
+    à esquerda: 50, à direita: 7 54
+statement_list (76)
+    à esquerda: 51 52, à direita: 50 52
+statements (77)
+    à esquerda: 53 54, à direita: 80 82 86
+statement (78)
+    à esquerda: 55 57, à direita: 51 52 53
+$@4 (79)
+    à esquerda: 56, à direita: 57
+statement_nolabel (80)
+    à esquerda: 58 59 60 61 62 63 64 65, à direita: 55 57
+assignment (81)
+    à esquerda: 66, à direita: 58
+call_noparams (82)
+    à esquerda: 67, à direita: 59
+call (83)
+    à esquerda: 69, à direita: 60 97
+$@5 (84)
+    à esquerda: 68, à direita: 69
+goto (85)
+    à esquerda: 70, à direita: 61
+read (86)
+    à esquerda: 71, à direita: 62
+read_expression_list (87)
+    à esquerda: 72 73, à direita: 71 73
+read_expression (88)
+    à esquerda: 75, à direita: 72 73
+$@6 (89)
+    à esquerda: 74, à direita: 75
+write (90)
+    à esquerda: 76, à direita: 63
+write_expression_list (91)
+    à esquerda: 77 78, à direita: 76 78
+write_expression (92)
+    à esquerda: 79, à direita: 77 78
+condition (93)
+    à esquerda: 80 82, à direita: 64
+$@7 (94)
+    à esquerda: 81, à direita: 82
+condition_if (95)
+    à esquerda: 83, à direita: 80 82
+while (96)
+    à esquerda: 86, à direita: 65
+$@8 (97)
+    à esquerda: 84, à direita: 86
+$@9 (98)
+    à esquerda: 85, à direita: 86
+expression_list (99)
+    à esquerda: 87 89, à direita: 69 89
+$@10 (100)
+    à esquerda: 88, à direita: 89
+expression (101)
+    à esquerda: 90 91, à direita: 66 79 83 86 87 89 99
+simple_expression (102)
+    à esquerda: 92 93, à direita: 90 91 93
+term (103)
+    à esquerda: 94 95, à direita: 92 93 95
+factor (104)
+    à esquerda: 96 97 98 99 100, à direita: 94 95 100
+addop (105)
+    à esquerda: 101 102 103, à direita: 93
+mulop (106)
+    à esquerda: 104 105 106, à direita: 95
+relop (107)
+    à esquerda: 107 108 109 110 111 112, à direita: 91
 
 
 Estado 0
@@ -608,15 +639,17 @@ Estado 30
 
     $padrão  reduzir usando a regra 22 (routine_declaration_part)
 
-    routine_declaration_part  ir ao estado 38
-    routine_declaration_list  ir ao estado 39
-    routine_declaration       ir ao estado 40
-    procedure_declaration     ir ao estado 41
-    procedure_heading         ir ao estado 42
-    procedure_identification  ir ao estado 43
-    function_declaration      ir ao estado 44
-    function_heading          ir ao estado 45
-    function_identification   ir ao estado 46
+    routine_declaration_part          ir ao estado 38
+    routine_declaration_list          ir ao estado 39
+    routine_declaration               ir ao estado 40
+    procedure_declaration             ir ao estado 41
+    procedure_heading                 ir ao estado 42
+    procedure_identification          ir ao estado 43
+    procedure_forward                 ir ao estado 44
+    procedure_forward_identification  ir ao estado 45
+    function_declaration              ir ao estado 46
+    function_heading                  ir ao estado 47
+    function_identification           ir ao estado 48
 
 
 Estado 31
@@ -630,7 +663,7 @@ Estado 32
 
    17 variable_declaration: T_VAR variable_list . T_COLON T_IDENTIFIER
 
-    T_COLON  deslocar, e ir ao estado 47
+    T_COLON  deslocar, e ir ao estado 49
 
 
 Estado 33
@@ -643,7 +676,7 @@ Estado 33
 
     $padrão  reduzir usando a regra 14 (variable_declaration_part)
 
-    variable_declaration  ir ao estado 48
+    variable_declaration  ir ao estado 50
     variable_list         ir ao estado 28
     variable_var          ir ao estado 29
 
@@ -652,7 +685,7 @@ Estado 34
 
    18 variable_declaration: variable_list T_COLON . T_IDENTIFIER
 
-    T_IDENTIFIER  deslocar, e ir ao estado 49
+    T_IDENTIFIER  deslocar, e ir ao estado 51
 
 
 Estado 35
@@ -661,22 +694,23 @@ Estado 35
 
     T_IDENTIFIER  deslocar, e ir ao estado 24
 
-    variable_list  ir ao estado 50
+    variable_list  ir ao estado 52
     variable_var   ir ao estado 29
 
 
 Estado 36
 
-   35 function_identification: T_FUNCTION . T_IDENTIFIER
+   39 function_identification: T_FUNCTION . T_IDENTIFIER
 
-    T_IDENTIFIER  deslocar, e ir ao estado 51
+    T_IDENTIFIER  deslocar, e ir ao estado 53
 
 
 Estado 37
 
-   31 procedure_identification: T_PROCEDURE . T_IDENTIFIER
+   32 procedure_identification: T_PROCEDURE . T_IDENTIFIER
+   35 procedure_forward_identification: T_PROCEDURE . T_IDENTIFIER
 
-    T_IDENTIFIER  deslocar, e ir ao estado 52
+    T_IDENTIFIER  deslocar, e ir ao estado 54
 
 
 Estado 38
@@ -685,7 +719,7 @@ Estado 38
 
     $padrão  reduzir usando a regra 6 ($@3)
 
-    $@3  ir ao estado 53
+    $@3  ir ao estado 55
 
 
 Estado 39
@@ -693,7 +727,7 @@ Estado 39
    23 routine_declaration_part: routine_declaration_list . T_SEMICOLON
    25 routine_declaration_list: routine_declaration_list . T_SEMICOLON routine_declaration
 
-    T_SEMICOLON  deslocar, e ir ao estado 54
+    T_SEMICOLON  deslocar, e ir ao estado 56
 
 
 Estado 40
@@ -714,98 +748,122 @@ Estado 42
 
    28 procedure_declaration: procedure_heading . T_SEMICOLON block
 
-    T_SEMICOLON  deslocar, e ir ao estado 55
+    T_SEMICOLON  deslocar, e ir ao estado 57
 
 
 Estado 43
 
-   29 procedure_heading: procedure_identification .
-   30                  | procedure_identification . formal_parameter_section
+   30 procedure_heading: procedure_identification .
+   31                  | procedure_identification . formal_parameter_section
 
-    T_LPAR  deslocar, e ir ao estado 56
+    T_LPAR  deslocar, e ir ao estado 58
 
-    $padrão  reduzir usando a regra 29 (procedure_heading)
+    $padrão  reduzir usando a regra 30 (procedure_heading)
 
-    formal_parameter_section  ir ao estado 57
+    formal_parameter_section  ir ao estado 59
 
 
 Estado 44
+
+   29 procedure_declaration: procedure_forward . T_SEMICOLON T_FORWARD T_SEMICOLON
+
+    T_SEMICOLON  deslocar, e ir ao estado 60
+
+
+Estado 45
+
+   33 procedure_forward: procedure_forward_identification .
+   34                  | procedure_forward_identification . forward_parameter_section
+
+    T_LPAR  deslocar, e ir ao estado 61
+
+    $padrão  reduzir usando a regra 33 (procedure_forward)
+
+    forward_parameter_section  ir ao estado 62
+
+
+Estado 46
 
    27 routine_declaration: function_declaration .
 
     $padrão  reduzir usando a regra 27 (routine_declaration)
 
 
-Estado 45
-
-   32 function_declaration: function_heading . T_SEMICOLON block
-
-    T_SEMICOLON  deslocar, e ir ao estado 58
-
-
-Estado 46
-
-   33 function_heading: function_identification . T_COLON T_IDENTIFIER
-   34                 | function_identification . formal_parameter_section T_COLON T_IDENTIFIER
-
-    T_LPAR   deslocar, e ir ao estado 56
-    T_COLON  deslocar, e ir ao estado 59
-
-    formal_parameter_section  ir ao estado 60
-
-
 Estado 47
 
-   17 variable_declaration: T_VAR variable_list T_COLON . T_IDENTIFIER
+   36 function_declaration: function_heading . T_SEMICOLON block
 
-    T_IDENTIFIER  deslocar, e ir ao estado 61
+    T_SEMICOLON  deslocar, e ir ao estado 63
 
 
 Estado 48
+
+   37 function_heading: function_identification . T_COLON T_IDENTIFIER
+   38                 | function_identification . formal_parameter_section T_COLON T_IDENTIFIER
+
+    T_LPAR   deslocar, e ir ao estado 58
+    T_COLON  deslocar, e ir ao estado 64
+
+    formal_parameter_section  ir ao estado 65
+
+
+Estado 49
+
+   17 variable_declaration: T_VAR variable_list T_COLON . T_IDENTIFIER
+
+    T_IDENTIFIER  deslocar, e ir ao estado 66
+
+
+Estado 50
 
    16 variable_declaration_list: variable_declaration_list T_SEMICOLON variable_declaration .
 
     $padrão  reduzir usando a regra 16 (variable_declaration_list)
 
 
-Estado 49
+Estado 51
 
    18 variable_declaration: variable_list T_COLON T_IDENTIFIER .
 
     $padrão  reduzir usando a regra 18 (variable_declaration)
 
 
-Estado 50
+Estado 52
 
    20 variable_list: variable_var T_COMMA variable_list .
 
     $padrão  reduzir usando a regra 20 (variable_list)
 
 
-Estado 51
-
-   35 function_identification: T_FUNCTION T_IDENTIFIER .
-
-    $padrão  reduzir usando a regra 35 (function_identification)
-
-
-Estado 52
-
-   31 procedure_identification: T_PROCEDURE T_IDENTIFIER .
-
-    $padrão  reduzir usando a regra 31 (procedure_identification)
-
-
 Estado 53
 
-    7 block: label_declaration_part variable_declaration_part $@2 routine_declaration_part $@3 . statement_part
+   39 function_identification: T_FUNCTION T_IDENTIFIER .
 
-    T_BEGIN  deslocar, e ir ao estado 62
-
-    statement_part  ir ao estado 63
+    $padrão  reduzir usando a regra 39 (function_identification)
 
 
 Estado 54
+
+   32 procedure_identification: T_PROCEDURE T_IDENTIFIER .
+   35 procedure_forward_identification: T_PROCEDURE T_IDENTIFIER .
+
+    T_LPAR       reduzir usando a regra 32 (procedure_identification)
+    T_LPAR       [reduzir usando a regra 35 (procedure_forward_identification)]
+    T_SEMICOLON  reduzir usando a regra 32 (procedure_identification)
+    T_SEMICOLON  [reduzir usando a regra 35 (procedure_forward_identification)]
+    $padrão     reduzir usando a regra 32 (procedure_identification)
+
+
+Estado 55
+
+    7 block: label_declaration_part variable_declaration_part $@2 routine_declaration_part $@3 . statement_part
+
+    T_BEGIN  deslocar, e ir ao estado 67
+
+    statement_part  ir ao estado 68
+
+
+Estado 56
 
    23 routine_declaration_part: routine_declaration_list T_SEMICOLON .
    25 routine_declaration_list: routine_declaration_list T_SEMICOLON . routine_declaration
@@ -815,48 +873,20 @@ Estado 54
 
     $padrão  reduzir usando a regra 23 (routine_declaration_part)
 
-    routine_declaration       ir ao estado 64
-    procedure_declaration     ir ao estado 41
-    procedure_heading         ir ao estado 42
-    procedure_identification  ir ao estado 43
-    function_declaration      ir ao estado 44
-    function_heading          ir ao estado 45
-    function_identification   ir ao estado 46
-
-
-Estado 55
-
-   28 procedure_declaration: procedure_heading T_SEMICOLON . block
-
-    T_LABEL  deslocar, e ir ao estado 13
-
-    $padrão  reduzir usando a regra 8 (label_declaration_part)
-
-    block                   ir ao estado 65
-    label_declaration_part  ir ao estado 15
-
-
-Estado 56
-
-   36 formal_parameter_section: T_LPAR . formal_parameter_list T_RPAR
-
-    T_IDENTIFIER  deslocar, e ir ao estado 66
-    T_VAR         deslocar, e ir ao estado 67
-
-    formal_parameter_list  ir ao estado 68
-    formal_parameter       ir ao estado 69
+    routine_declaration               ir ao estado 69
+    procedure_declaration             ir ao estado 41
+    procedure_heading                 ir ao estado 42
+    procedure_identification          ir ao estado 43
+    procedure_forward                 ir ao estado 44
+    procedure_forward_identification  ir ao estado 45
+    function_declaration              ir ao estado 46
+    function_heading                  ir ao estado 47
+    function_identification           ir ao estado 48
 
 
 Estado 57
 
-   30 procedure_heading: procedure_identification formal_parameter_section .
-
-    $padrão  reduzir usando a regra 30 (procedure_heading)
-
-
-Estado 58
-
-   32 function_declaration: function_heading T_SEMICOLON . block
+   28 procedure_declaration: procedure_heading T_SEMICOLON . block
 
     T_LABEL  deslocar, e ir ao estado 13
 
@@ -866,1126 +896,1282 @@ Estado 58
     label_declaration_part  ir ao estado 15
 
 
-Estado 59
+Estado 58
 
-   33 function_heading: function_identification T_COLON . T_IDENTIFIER
+   40 formal_parameter_section: T_LPAR . formal_parameter_list T_RPAR
 
     T_IDENTIFIER  deslocar, e ir ao estado 71
+    T_VAR         deslocar, e ir ao estado 72
+
+    formal_parameter_list  ir ao estado 73
+    formal_parameter       ir ao estado 74
+
+
+Estado 59
+
+   31 procedure_heading: procedure_identification formal_parameter_section .
+
+    $padrão  reduzir usando a regra 31 (procedure_heading)
 
 
 Estado 60
 
-   34 function_heading: function_identification formal_parameter_section . T_COLON T_IDENTIFIER
+   29 procedure_declaration: procedure_forward T_SEMICOLON . T_FORWARD T_SEMICOLON
 
-    T_COLON  deslocar, e ir ao estado 72
+    T_FORWARD  deslocar, e ir ao estado 75
 
 
 Estado 61
+
+   45 forward_parameter_section: T_LPAR . forward_parameter_list T_RPAR
+
+    T_IDENTIFIER  deslocar, e ir ao estado 76
+    T_VAR         deslocar, e ir ao estado 77
+
+    forward_parameter_list  ir ao estado 78
+    forward_parameter       ir ao estado 79
+
+
+Estado 62
+
+   34 procedure_forward: procedure_forward_identification forward_parameter_section .
+
+    $padrão  reduzir usando a regra 34 (procedure_forward)
+
+
+Estado 63
+
+   36 function_declaration: function_heading T_SEMICOLON . block
+
+    T_LABEL  deslocar, e ir ao estado 13
+
+    $padrão  reduzir usando a regra 8 (label_declaration_part)
+
+    block                   ir ao estado 80
+    label_declaration_part  ir ao estado 15
+
+
+Estado 64
+
+   37 function_heading: function_identification T_COLON . T_IDENTIFIER
+
+    T_IDENTIFIER  deslocar, e ir ao estado 81
+
+
+Estado 65
+
+   38 function_heading: function_identification formal_parameter_section . T_COLON T_IDENTIFIER
+
+    T_COLON  deslocar, e ir ao estado 82
+
+
+Estado 66
 
    17 variable_declaration: T_VAR variable_list T_COLON T_IDENTIFIER .
 
     $padrão  reduzir usando a regra 17 (variable_declaration)
 
 
-Estado 62
+Estado 67
 
-   41 statement_part: T_BEGIN . statement_list T_END
+   50 statement_part: T_BEGIN . statement_list T_END
 
-    T_IDENTIFIER  deslocar, e ir ao estado 73
-    T_IF          deslocar, e ir ao estado 74
-    T_WHILE       deslocar, e ir ao estado 75
-    T_GOTO        deslocar, e ir ao estado 76
-    T_READ        deslocar, e ir ao estado 77
-    T_WRITE       deslocar, e ir ao estado 78
+    T_IDENTIFIER  deslocar, e ir ao estado 83
+    T_INTEGER     deslocar, e ir ao estado 84
+    T_IF          deslocar, e ir ao estado 85
+    T_WHILE       deslocar, e ir ao estado 86
+    T_GOTO        deslocar, e ir ao estado 87
+    T_READ        deslocar, e ir ao estado 88
+    T_WRITE       deslocar, e ir ao estado 89
 
-    statement_list     ir ao estado 79
-    statement          ir ao estado 80
-    statement_nolabel  ir ao estado 81
-    assignment         ir ao estado 82
-    call_noparams      ir ao estado 83
-    call               ir ao estado 84
-    goto               ir ao estado 85
-    read               ir ao estado 86
-    write              ir ao estado 87
-    condition          ir ao estado 88
-    condition_if       ir ao estado 89
-    while              ir ao estado 90
+    statement_list     ir ao estado 90
+    statement          ir ao estado 91
+    statement_nolabel  ir ao estado 92
+    assignment         ir ao estado 93
+    call_noparams      ir ao estado 94
+    call               ir ao estado 95
+    goto               ir ao estado 96
+    read               ir ao estado 97
+    write              ir ao estado 98
+    condition          ir ao estado 99
+    condition_if       ir ao estado 100
+    while              ir ao estado 101
 
 
-Estado 63
+Estado 68
 
     7 block: label_declaration_part variable_declaration_part $@2 routine_declaration_part $@3 statement_part .
 
     $padrão  reduzir usando a regra 7 (block)
 
 
-Estado 64
+Estado 69
 
    25 routine_declaration_list: routine_declaration_list T_SEMICOLON routine_declaration .
 
     $padrão  reduzir usando a regra 25 (routine_declaration_list)
 
 
-Estado 65
+Estado 70
 
    28 procedure_declaration: procedure_heading T_SEMICOLON block .
 
     $padrão  reduzir usando a regra 28 (procedure_declaration)
 
 
-Estado 66
-
-   39 formal_parameter: T_IDENTIFIER . T_COLON T_IDENTIFIER
-
-    T_COLON  deslocar, e ir ao estado 91
-
-
-Estado 67
-
-   40 formal_parameter: T_VAR . T_IDENTIFIER T_COLON T_IDENTIFIER
-
-    T_IDENTIFIER  deslocar, e ir ao estado 92
-
-
-Estado 68
-
-   36 formal_parameter_section: T_LPAR formal_parameter_list . T_RPAR
-
-    T_RPAR  deslocar, e ir ao estado 93
-
-
-Estado 69
-
-   37 formal_parameter_list: formal_parameter .
-   38                      | formal_parameter . T_SEMICOLON formal_parameter_list
-
-    T_SEMICOLON  deslocar, e ir ao estado 94
-
-    $padrão  reduzir usando a regra 37 (formal_parameter_list)
-
-
-Estado 70
-
-   32 function_declaration: function_heading T_SEMICOLON block .
-
-    $padrão  reduzir usando a regra 32 (function_declaration)
-
-
 Estado 71
 
-   33 function_heading: function_identification T_COLON T_IDENTIFIER .
+   43 formal_parameter: T_IDENTIFIER . T_COLON T_IDENTIFIER
 
-    $padrão  reduzir usando a regra 33 (function_heading)
+    T_COLON  deslocar, e ir ao estado 102
 
 
 Estado 72
 
-   34 function_heading: function_identification formal_parameter_section T_COLON . T_IDENTIFIER
+   44 formal_parameter: T_VAR . T_IDENTIFIER T_COLON T_IDENTIFIER
 
-    T_IDENTIFIER  deslocar, e ir ao estado 95
+    T_IDENTIFIER  deslocar, e ir ao estado 103
 
 
 Estado 73
 
-   48 statement: T_IDENTIFIER . T_COLON $@4 statement_nolabel
-   57 assignment: T_IDENTIFIER . T_ASSIGNMENT expression
-   58 call_noparams: T_IDENTIFIER .
-   60 call: T_IDENTIFIER . $@5 T_LPAR expression_list T_RPAR
+   40 formal_parameter_section: T_LPAR formal_parameter_list . T_RPAR
 
-    T_ASSIGNMENT  deslocar, e ir ao estado 96
-    T_COLON       deslocar, e ir ao estado 97
-
-    T_LPAR    reduzir usando a regra 59 ($@5)
-    $padrão  reduzir usando a regra 58 (call_noparams)
-
-    $@5  ir ao estado 98
+    T_RPAR  deslocar, e ir ao estado 104
 
 
 Estado 74
 
-   74 condition_if: T_IF . expression T_THEN
+   41 formal_parameter_list: formal_parameter .
+   42                      | formal_parameter . T_SEMICOLON formal_parameter_list
 
-    T_IDENTIFIER  deslocar, e ir ao estado 99
-    T_INTEGER     deslocar, e ir ao estado 100
-    T_LPAR        deslocar, e ir ao estado 101
-    T_NOT         deslocar, e ir ao estado 102
+    T_SEMICOLON  deslocar, e ir ao estado 105
 
-    call               ir ao estado 103
-    expression         ir ao estado 104
-    simple_expression  ir ao estado 105
-    term               ir ao estado 106
-    factor             ir ao estado 107
+    $padrão  reduzir usando a regra 41 (formal_parameter_list)
 
 
 Estado 75
 
-   77 while: T_WHILE . $@8 expression T_DO $@9 statements
+   29 procedure_declaration: procedure_forward T_SEMICOLON T_FORWARD . T_SEMICOLON
 
-    $padrão  reduzir usando a regra 75 ($@8)
-
-    $@8  ir ao estado 108
+    T_SEMICOLON  deslocar, e ir ao estado 106
 
 
 Estado 76
 
-   61 goto: T_GOTO . T_INTEGER
+   48 forward_parameter: T_IDENTIFIER . T_COLON T_IDENTIFIER
 
-    T_INTEGER  deslocar, e ir ao estado 109
+    T_COLON  deslocar, e ir ao estado 107
 
 
 Estado 77
 
-   62 read: T_READ . T_LPAR read_expression_list T_RPAR
+   49 forward_parameter: T_VAR . T_IDENTIFIER T_COLON T_IDENTIFIER
 
-    T_LPAR  deslocar, e ir ao estado 110
+    T_IDENTIFIER  deslocar, e ir ao estado 108
 
 
 Estado 78
 
-   67 write: T_WRITE . T_LPAR write_expression_list T_RPAR
+   45 forward_parameter_section: T_LPAR forward_parameter_list . T_RPAR
 
-    T_LPAR  deslocar, e ir ao estado 111
+    T_RPAR  deslocar, e ir ao estado 109
 
 
 Estado 79
 
-   41 statement_part: T_BEGIN statement_list . T_END
-   43 statement_list: statement_list . T_SEMICOLON statement
+   46 forward_parameter_list: forward_parameter .
+   47                       | forward_parameter . T_SEMICOLON forward_parameter_list
 
-    T_SEMICOLON  deslocar, e ir ao estado 112
-    T_END        deslocar, e ir ao estado 113
+    T_SEMICOLON  deslocar, e ir ao estado 110
+
+    $padrão  reduzir usando a regra 46 (forward_parameter_list)
 
 
 Estado 80
 
-   42 statement_list: statement .
+   36 function_declaration: function_heading T_SEMICOLON block .
 
-    $padrão  reduzir usando a regra 42 (statement_list)
+    $padrão  reduzir usando a regra 36 (function_declaration)
 
 
 Estado 81
 
-   46 statement: statement_nolabel .
+   37 function_heading: function_identification T_COLON T_IDENTIFIER .
 
-    $padrão  reduzir usando a regra 46 (statement)
+    $padrão  reduzir usando a regra 37 (function_heading)
 
 
 Estado 82
 
-   49 statement_nolabel: assignment .
+   38 function_heading: function_identification formal_parameter_section T_COLON . T_IDENTIFIER
 
-    $padrão  reduzir usando a regra 49 (statement_nolabel)
+    T_IDENTIFIER  deslocar, e ir ao estado 111
 
 
 Estado 83
 
-   50 statement_nolabel: call_noparams .
+   66 assignment: T_IDENTIFIER . T_ASSIGNMENT expression
+   67 call_noparams: T_IDENTIFIER .
+   69 call: T_IDENTIFIER . $@5 T_LPAR expression_list T_RPAR
 
-    $padrão  reduzir usando a regra 50 (statement_nolabel)
+    T_ASSIGNMENT  deslocar, e ir ao estado 112
+
+    T_LPAR    reduzir usando a regra 68 ($@5)
+    $padrão  reduzir usando a regra 67 (call_noparams)
+
+    $@5  ir ao estado 113
 
 
 Estado 84
 
-   51 statement_nolabel: call .
+   57 statement: T_INTEGER . T_COLON $@4 statement_nolabel
 
-    $padrão  reduzir usando a regra 51 (statement_nolabel)
+    T_COLON  deslocar, e ir ao estado 114
 
 
 Estado 85
 
-   52 statement_nolabel: goto .
+   83 condition_if: T_IF . expression T_THEN
 
-    $padrão  reduzir usando a regra 52 (statement_nolabel)
+    T_IDENTIFIER  deslocar, e ir ao estado 115
+    T_INTEGER     deslocar, e ir ao estado 116
+    T_LPAR        deslocar, e ir ao estado 117
+    T_NOT         deslocar, e ir ao estado 118
+
+    call               ir ao estado 119
+    expression         ir ao estado 120
+    simple_expression  ir ao estado 121
+    term               ir ao estado 122
+    factor             ir ao estado 123
 
 
 Estado 86
 
-   53 statement_nolabel: read .
+   86 while: T_WHILE . $@8 expression T_DO $@9 statements
 
-    $padrão  reduzir usando a regra 53 (statement_nolabel)
+    $padrão  reduzir usando a regra 84 ($@8)
+
+    $@8  ir ao estado 124
 
 
 Estado 87
 
-   54 statement_nolabel: write .
+   70 goto: T_GOTO . T_INTEGER
 
-    $padrão  reduzir usando a regra 54 (statement_nolabel)
+    T_INTEGER  deslocar, e ir ao estado 125
 
 
 Estado 88
 
-   55 statement_nolabel: condition .
+   71 read: T_READ . T_LPAR read_expression_list T_RPAR
 
-    $padrão  reduzir usando a regra 55 (statement_nolabel)
+    T_LPAR  deslocar, e ir ao estado 126
 
 
 Estado 89
 
-   71 condition: condition_if . statements
-   73          | condition_if . statements T_ELSE $@7 statements
+   76 write: T_WRITE . T_LPAR write_expression_list T_RPAR
 
-    T_IDENTIFIER  deslocar, e ir ao estado 73
-    T_BEGIN       deslocar, e ir ao estado 62
-    T_IF          deslocar, e ir ao estado 74
-    T_WHILE       deslocar, e ir ao estado 75
-    T_GOTO        deslocar, e ir ao estado 76
-    T_READ        deslocar, e ir ao estado 77
-    T_WRITE       deslocar, e ir ao estado 78
-
-    statement_part     ir ao estado 114
-    statements         ir ao estado 115
-    statement          ir ao estado 116
-    statement_nolabel  ir ao estado 81
-    assignment         ir ao estado 82
-    call_noparams      ir ao estado 83
-    call               ir ao estado 84
-    goto               ir ao estado 85
-    read               ir ao estado 86
-    write              ir ao estado 87
-    condition          ir ao estado 88
-    condition_if       ir ao estado 89
-    while              ir ao estado 90
+    T_LPAR  deslocar, e ir ao estado 127
 
 
 Estado 90
 
-   56 statement_nolabel: while .
+   50 statement_part: T_BEGIN statement_list . T_END
+   52 statement_list: statement_list . T_SEMICOLON statement
 
-    $padrão  reduzir usando a regra 56 (statement_nolabel)
+    T_SEMICOLON  deslocar, e ir ao estado 128
+    T_END        deslocar, e ir ao estado 129
 
 
 Estado 91
 
-   39 formal_parameter: T_IDENTIFIER T_COLON . T_IDENTIFIER
+   51 statement_list: statement .
 
-    T_IDENTIFIER  deslocar, e ir ao estado 117
+    $padrão  reduzir usando a regra 51 (statement_list)
 
 
 Estado 92
 
-   40 formal_parameter: T_VAR T_IDENTIFIER . T_COLON T_IDENTIFIER
+   55 statement: statement_nolabel .
 
-    T_COLON  deslocar, e ir ao estado 118
+    $padrão  reduzir usando a regra 55 (statement)
 
 
 Estado 93
 
-   36 formal_parameter_section: T_LPAR formal_parameter_list T_RPAR .
+   58 statement_nolabel: assignment .
 
-    $padrão  reduzir usando a regra 36 (formal_parameter_section)
+    $padrão  reduzir usando a regra 58 (statement_nolabel)
 
 
 Estado 94
 
-   38 formal_parameter_list: formal_parameter T_SEMICOLON . formal_parameter_list
+   59 statement_nolabel: call_noparams .
 
-    T_IDENTIFIER  deslocar, e ir ao estado 66
-    T_VAR         deslocar, e ir ao estado 67
-
-    formal_parameter_list  ir ao estado 119
-    formal_parameter       ir ao estado 69
+    $padrão  reduzir usando a regra 59 (statement_nolabel)
 
 
 Estado 95
 
-   34 function_heading: function_identification formal_parameter_section T_COLON T_IDENTIFIER .
+   60 statement_nolabel: call .
 
-    $padrão  reduzir usando a regra 34 (function_heading)
+    $padrão  reduzir usando a regra 60 (statement_nolabel)
 
 
 Estado 96
 
-   57 assignment: T_IDENTIFIER T_ASSIGNMENT . expression
+   61 statement_nolabel: goto .
 
-    T_IDENTIFIER  deslocar, e ir ao estado 99
-    T_INTEGER     deslocar, e ir ao estado 100
-    T_LPAR        deslocar, e ir ao estado 101
-    T_NOT         deslocar, e ir ao estado 102
-
-    call               ir ao estado 103
-    expression         ir ao estado 120
-    simple_expression  ir ao estado 105
-    term               ir ao estado 106
-    factor             ir ao estado 107
+    $padrão  reduzir usando a regra 61 (statement_nolabel)
 
 
 Estado 97
 
-   48 statement: T_IDENTIFIER T_COLON . $@4 statement_nolabel
+   62 statement_nolabel: read .
 
-    $padrão  reduzir usando a regra 47 ($@4)
-
-    $@4  ir ao estado 121
+    $padrão  reduzir usando a regra 62 (statement_nolabel)
 
 
 Estado 98
 
-   60 call: T_IDENTIFIER $@5 . T_LPAR expression_list T_RPAR
+   63 statement_nolabel: write .
 
-    T_LPAR  deslocar, e ir ao estado 122
+    $padrão  reduzir usando a regra 63 (statement_nolabel)
 
 
 Estado 99
 
-   60 call: T_IDENTIFIER . $@5 T_LPAR expression_list T_RPAR
-   87 factor: T_IDENTIFIER .
+   64 statement_nolabel: condition .
 
-    T_LPAR    reduzir usando a regra 59 ($@5)
-    $padrão  reduzir usando a regra 87 (factor)
-
-    $@5  ir ao estado 98
+    $padrão  reduzir usando a regra 64 (statement_nolabel)
 
 
 Estado 100
 
-   89 factor: T_INTEGER .
+   80 condition: condition_if . statements
+   82          | condition_if . statements T_ELSE $@7 statements
 
-    $padrão  reduzir usando a regra 89 (factor)
+    T_IDENTIFIER  deslocar, e ir ao estado 83
+    T_INTEGER     deslocar, e ir ao estado 84
+    T_BEGIN       deslocar, e ir ao estado 67
+    T_IF          deslocar, e ir ao estado 85
+    T_WHILE       deslocar, e ir ao estado 86
+    T_GOTO        deslocar, e ir ao estado 87
+    T_READ        deslocar, e ir ao estado 88
+    T_WRITE       deslocar, e ir ao estado 89
+
+    statement_part     ir ao estado 130
+    statements         ir ao estado 131
+    statement          ir ao estado 132
+    statement_nolabel  ir ao estado 92
+    assignment         ir ao estado 93
+    call_noparams      ir ao estado 94
+    call               ir ao estado 95
+    goto               ir ao estado 96
+    read               ir ao estado 97
+    write              ir ao estado 98
+    condition          ir ao estado 99
+    condition_if       ir ao estado 100
+    while              ir ao estado 101
 
 
 Estado 101
 
-   90 factor: T_LPAR . expression T_RPAR
+   65 statement_nolabel: while .
 
-    T_IDENTIFIER  deslocar, e ir ao estado 99
-    T_INTEGER     deslocar, e ir ao estado 100
-    T_LPAR        deslocar, e ir ao estado 101
-    T_NOT         deslocar, e ir ao estado 102
-
-    call               ir ao estado 103
-    expression         ir ao estado 123
-    simple_expression  ir ao estado 105
-    term               ir ao estado 106
-    factor             ir ao estado 107
+    $padrão  reduzir usando a regra 65 (statement_nolabel)
 
 
 Estado 102
 
-   91 factor: T_NOT . factor
+   43 formal_parameter: T_IDENTIFIER T_COLON . T_IDENTIFIER
 
-    T_IDENTIFIER  deslocar, e ir ao estado 99
-    T_INTEGER     deslocar, e ir ao estado 100
-    T_LPAR        deslocar, e ir ao estado 101
-    T_NOT         deslocar, e ir ao estado 102
-
-    call    ir ao estado 103
-    factor  ir ao estado 124
+    T_IDENTIFIER  deslocar, e ir ao estado 133
 
 
 Estado 103
 
-   88 factor: call .
+   44 formal_parameter: T_VAR T_IDENTIFIER . T_COLON T_IDENTIFIER
 
-    $padrão  reduzir usando a regra 88 (factor)
+    T_COLON  deslocar, e ir ao estado 134
 
 
 Estado 104
 
-   74 condition_if: T_IF expression . T_THEN
+   40 formal_parameter_section: T_LPAR formal_parameter_list T_RPAR .
 
-    T_THEN  deslocar, e ir ao estado 125
+    $padrão  reduzir usando a regra 40 (formal_parameter_section)
 
 
 Estado 105
 
-   81 expression: simple_expression .
-   82           | simple_expression . relop simple_expression
-   84 simple_expression: simple_expression . addop term
+   42 formal_parameter_list: formal_parameter T_SEMICOLON . formal_parameter_list
 
-    T_EQ     deslocar, e ir ao estado 126
-    T_NEQ    deslocar, e ir ao estado 127
-    T_GTE    deslocar, e ir ao estado 128
-    T_GT     deslocar, e ir ao estado 129
-    T_LTE    deslocar, e ir ao estado 130
-    T_LT     deslocar, e ir ao estado 131
-    T_PLUS   deslocar, e ir ao estado 132
-    T_MINUS  deslocar, e ir ao estado 133
-    T_OR     deslocar, e ir ao estado 134
+    T_IDENTIFIER  deslocar, e ir ao estado 71
+    T_VAR         deslocar, e ir ao estado 72
 
-    $padrão  reduzir usando a regra 81 (expression)
-
-    addop  ir ao estado 135
-    relop  ir ao estado 136
+    formal_parameter_list  ir ao estado 135
+    formal_parameter       ir ao estado 74
 
 
 Estado 106
 
-   83 simple_expression: term .
-   86 term: term . mulop factor
+   29 procedure_declaration: procedure_forward T_SEMICOLON T_FORWARD T_SEMICOLON .
 
-    T_STAR  deslocar, e ir ao estado 137
-    T_DIV   deslocar, e ir ao estado 138
-    T_AND   deslocar, e ir ao estado 139
-
-    $padrão  reduzir usando a regra 83 (simple_expression)
-
-    mulop  ir ao estado 140
+    $padrão  reduzir usando a regra 29 (procedure_declaration)
 
 
 Estado 107
 
-   85 term: factor .
+   48 forward_parameter: T_IDENTIFIER T_COLON . T_IDENTIFIER
 
-    $padrão  reduzir usando a regra 85 (term)
+    T_IDENTIFIER  deslocar, e ir ao estado 136
 
 
 Estado 108
 
-   77 while: T_WHILE $@8 . expression T_DO $@9 statements
+   49 forward_parameter: T_VAR T_IDENTIFIER . T_COLON T_IDENTIFIER
 
-    T_IDENTIFIER  deslocar, e ir ao estado 99
-    T_INTEGER     deslocar, e ir ao estado 100
-    T_LPAR        deslocar, e ir ao estado 101
-    T_NOT         deslocar, e ir ao estado 102
-
-    call               ir ao estado 103
-    expression         ir ao estado 141
-    simple_expression  ir ao estado 105
-    term               ir ao estado 106
-    factor             ir ao estado 107
+    T_COLON  deslocar, e ir ao estado 137
 
 
 Estado 109
 
-   61 goto: T_GOTO T_INTEGER .
+   45 forward_parameter_section: T_LPAR forward_parameter_list T_RPAR .
 
-    $padrão  reduzir usando a regra 61 (goto)
+    $padrão  reduzir usando a regra 45 (forward_parameter_section)
 
 
 Estado 110
 
-   62 read: T_READ T_LPAR . read_expression_list T_RPAR
+   47 forward_parameter_list: forward_parameter T_SEMICOLON . forward_parameter_list
 
-    $padrão  reduzir usando a regra 65 ($@6)
+    T_IDENTIFIER  deslocar, e ir ao estado 76
+    T_VAR         deslocar, e ir ao estado 77
 
-    read_expression_list  ir ao estado 142
-    read_expression       ir ao estado 143
-    $@6                   ir ao estado 144
+    forward_parameter_list  ir ao estado 138
+    forward_parameter       ir ao estado 79
 
 
 Estado 111
 
-   67 write: T_WRITE T_LPAR . write_expression_list T_RPAR
+   38 function_heading: function_identification formal_parameter_section T_COLON T_IDENTIFIER .
 
-    T_IDENTIFIER  deslocar, e ir ao estado 99
-    T_INTEGER     deslocar, e ir ao estado 100
-    T_LPAR        deslocar, e ir ao estado 101
-    T_NOT         deslocar, e ir ao estado 102
-
-    call                   ir ao estado 103
-    write_expression_list  ir ao estado 145
-    write_expression       ir ao estado 146
-    expression             ir ao estado 147
-    simple_expression      ir ao estado 105
-    term                   ir ao estado 106
-    factor                 ir ao estado 107
+    $padrão  reduzir usando a regra 38 (function_heading)
 
 
 Estado 112
 
-   43 statement_list: statement_list T_SEMICOLON . statement
+   66 assignment: T_IDENTIFIER T_ASSIGNMENT . expression
 
-    T_IDENTIFIER  deslocar, e ir ao estado 73
-    T_IF          deslocar, e ir ao estado 74
-    T_WHILE       deslocar, e ir ao estado 75
-    T_GOTO        deslocar, e ir ao estado 76
-    T_READ        deslocar, e ir ao estado 77
-    T_WRITE       deslocar, e ir ao estado 78
+    T_IDENTIFIER  deslocar, e ir ao estado 115
+    T_INTEGER     deslocar, e ir ao estado 116
+    T_LPAR        deslocar, e ir ao estado 117
+    T_NOT         deslocar, e ir ao estado 118
 
-    statement          ir ao estado 148
-    statement_nolabel  ir ao estado 81
-    assignment         ir ao estado 82
-    call_noparams      ir ao estado 83
-    call               ir ao estado 84
-    goto               ir ao estado 85
-    read               ir ao estado 86
-    write              ir ao estado 87
-    condition          ir ao estado 88
-    condition_if       ir ao estado 89
-    while              ir ao estado 90
+    call               ir ao estado 119
+    expression         ir ao estado 139
+    simple_expression  ir ao estado 121
+    term               ir ao estado 122
+    factor             ir ao estado 123
 
 
 Estado 113
 
-   41 statement_part: T_BEGIN statement_list T_END .
+   69 call: T_IDENTIFIER $@5 . T_LPAR expression_list T_RPAR
 
-    $padrão  reduzir usando a regra 41 (statement_part)
+    T_LPAR  deslocar, e ir ao estado 140
 
 
 Estado 114
 
-   45 statements: statement_part .
+   57 statement: T_INTEGER T_COLON . $@4 statement_nolabel
 
-    $padrão  reduzir usando a regra 45 (statements)
+    $padrão  reduzir usando a regra 56 ($@4)
+
+    $@4  ir ao estado 141
 
 
 Estado 115
 
-   71 condition: condition_if statements .
-   73          | condition_if statements . T_ELSE $@7 statements
+   69 call: T_IDENTIFIER . $@5 T_LPAR expression_list T_RPAR
+   96 factor: T_IDENTIFIER .
 
-    T_ELSE  deslocar, e ir ao estado 149
+    T_LPAR    reduzir usando a regra 68 ($@5)
+    $padrão  reduzir usando a regra 96 (factor)
 
-    T_ELSE    [reduzir usando a regra 71 (condition)]
-    $padrão  reduzir usando a regra 71 (condition)
+    $@5  ir ao estado 113
 
 
 Estado 116
 
-   44 statements: statement .
+   98 factor: T_INTEGER .
 
-    $padrão  reduzir usando a regra 44 (statements)
+    $padrão  reduzir usando a regra 98 (factor)
 
 
 Estado 117
 
-   39 formal_parameter: T_IDENTIFIER T_COLON T_IDENTIFIER .
+   99 factor: T_LPAR . expression T_RPAR
 
-    $padrão  reduzir usando a regra 39 (formal_parameter)
+    T_IDENTIFIER  deslocar, e ir ao estado 115
+    T_INTEGER     deslocar, e ir ao estado 116
+    T_LPAR        deslocar, e ir ao estado 117
+    T_NOT         deslocar, e ir ao estado 118
+
+    call               ir ao estado 119
+    expression         ir ao estado 142
+    simple_expression  ir ao estado 121
+    term               ir ao estado 122
+    factor             ir ao estado 123
 
 
 Estado 118
 
-   40 formal_parameter: T_VAR T_IDENTIFIER T_COLON . T_IDENTIFIER
+  100 factor: T_NOT . factor
 
-    T_IDENTIFIER  deslocar, e ir ao estado 150
+    T_IDENTIFIER  deslocar, e ir ao estado 115
+    T_INTEGER     deslocar, e ir ao estado 116
+    T_LPAR        deslocar, e ir ao estado 117
+    T_NOT         deslocar, e ir ao estado 118
+
+    call    ir ao estado 119
+    factor  ir ao estado 143
 
 
 Estado 119
 
-   38 formal_parameter_list: formal_parameter T_SEMICOLON formal_parameter_list .
+   97 factor: call .
 
-    $padrão  reduzir usando a regra 38 (formal_parameter_list)
+    $padrão  reduzir usando a regra 97 (factor)
 
 
 Estado 120
 
-   57 assignment: T_IDENTIFIER T_ASSIGNMENT expression .
+   83 condition_if: T_IF expression . T_THEN
 
-    $padrão  reduzir usando a regra 57 (assignment)
+    T_THEN  deslocar, e ir ao estado 144
 
 
 Estado 121
 
-   48 statement: T_IDENTIFIER T_COLON $@4 . statement_nolabel
+   90 expression: simple_expression .
+   91           | simple_expression . relop simple_expression
+   93 simple_expression: simple_expression . addop term
 
-    T_IDENTIFIER  deslocar, e ir ao estado 151
-    T_IF          deslocar, e ir ao estado 74
-    T_WHILE       deslocar, e ir ao estado 75
-    T_GOTO        deslocar, e ir ao estado 76
-    T_READ        deslocar, e ir ao estado 77
-    T_WRITE       deslocar, e ir ao estado 78
+    T_EQ     deslocar, e ir ao estado 145
+    T_NEQ    deslocar, e ir ao estado 146
+    T_GTE    deslocar, e ir ao estado 147
+    T_GT     deslocar, e ir ao estado 148
+    T_LTE    deslocar, e ir ao estado 149
+    T_LT     deslocar, e ir ao estado 150
+    T_PLUS   deslocar, e ir ao estado 151
+    T_MINUS  deslocar, e ir ao estado 152
+    T_OR     deslocar, e ir ao estado 153
 
-    statement_nolabel  ir ao estado 152
-    assignment         ir ao estado 82
-    call_noparams      ir ao estado 83
-    call               ir ao estado 84
-    goto               ir ao estado 85
-    read               ir ao estado 86
-    write              ir ao estado 87
-    condition          ir ao estado 88
-    condition_if       ir ao estado 89
-    while              ir ao estado 90
+    $padrão  reduzir usando a regra 90 (expression)
+
+    addop  ir ao estado 154
+    relop  ir ao estado 155
 
 
 Estado 122
 
-   60 call: T_IDENTIFIER $@5 T_LPAR . expression_list T_RPAR
+   92 simple_expression: term .
+   95 term: term . mulop factor
 
-    T_IDENTIFIER  deslocar, e ir ao estado 99
-    T_INTEGER     deslocar, e ir ao estado 100
-    T_LPAR        deslocar, e ir ao estado 101
-    T_NOT         deslocar, e ir ao estado 102
+    T_STAR  deslocar, e ir ao estado 156
+    T_DIV   deslocar, e ir ao estado 157
+    T_AND   deslocar, e ir ao estado 158
 
-    call               ir ao estado 103
-    expression_list    ir ao estado 153
-    expression         ir ao estado 154
-    simple_expression  ir ao estado 105
-    term               ir ao estado 106
-    factor             ir ao estado 107
+    $padrão  reduzir usando a regra 92 (simple_expression)
+
+    mulop  ir ao estado 159
 
 
 Estado 123
 
-   90 factor: T_LPAR expression . T_RPAR
+   94 term: factor .
 
-    T_RPAR  deslocar, e ir ao estado 155
+    $padrão  reduzir usando a regra 94 (term)
 
 
 Estado 124
 
-   91 factor: T_NOT factor .
+   86 while: T_WHILE $@8 . expression T_DO $@9 statements
 
-    $padrão  reduzir usando a regra 91 (factor)
+    T_IDENTIFIER  deslocar, e ir ao estado 115
+    T_INTEGER     deslocar, e ir ao estado 116
+    T_LPAR        deslocar, e ir ao estado 117
+    T_NOT         deslocar, e ir ao estado 118
+
+    call               ir ao estado 119
+    expression         ir ao estado 160
+    simple_expression  ir ao estado 121
+    term               ir ao estado 122
+    factor             ir ao estado 123
 
 
 Estado 125
 
-   74 condition_if: T_IF expression T_THEN .
+   70 goto: T_GOTO T_INTEGER .
 
-    $padrão  reduzir usando a regra 74 (condition_if)
+    $padrão  reduzir usando a regra 70 (goto)
 
 
 Estado 126
 
-   98 relop: T_EQ .
+   71 read: T_READ T_LPAR . read_expression_list T_RPAR
 
-    $padrão  reduzir usando a regra 98 (relop)
+    $padrão  reduzir usando a regra 74 ($@6)
+
+    read_expression_list  ir ao estado 161
+    read_expression       ir ao estado 162
+    $@6                   ir ao estado 163
 
 
 Estado 127
 
-   99 relop: T_NEQ .
+   76 write: T_WRITE T_LPAR . write_expression_list T_RPAR
 
-    $padrão  reduzir usando a regra 99 (relop)
+    T_IDENTIFIER  deslocar, e ir ao estado 115
+    T_INTEGER     deslocar, e ir ao estado 116
+    T_LPAR        deslocar, e ir ao estado 117
+    T_NOT         deslocar, e ir ao estado 118
+
+    call                   ir ao estado 119
+    write_expression_list  ir ao estado 164
+    write_expression       ir ao estado 165
+    expression             ir ao estado 166
+    simple_expression      ir ao estado 121
+    term                   ir ao estado 122
+    factor                 ir ao estado 123
 
 
 Estado 128
 
-  103 relop: T_GTE .
+   52 statement_list: statement_list T_SEMICOLON . statement
 
-    $padrão  reduzir usando a regra 103 (relop)
+    T_IDENTIFIER  deslocar, e ir ao estado 83
+    T_INTEGER     deslocar, e ir ao estado 84
+    T_IF          deslocar, e ir ao estado 85
+    T_WHILE       deslocar, e ir ao estado 86
+    T_GOTO        deslocar, e ir ao estado 87
+    T_READ        deslocar, e ir ao estado 88
+    T_WRITE       deslocar, e ir ao estado 89
+
+    statement          ir ao estado 167
+    statement_nolabel  ir ao estado 92
+    assignment         ir ao estado 93
+    call_noparams      ir ao estado 94
+    call               ir ao estado 95
+    goto               ir ao estado 96
+    read               ir ao estado 97
+    write              ir ao estado 98
+    condition          ir ao estado 99
+    condition_if       ir ao estado 100
+    while              ir ao estado 101
 
 
 Estado 129
 
-  101 relop: T_GT .
+   50 statement_part: T_BEGIN statement_list T_END .
 
-    $padrão  reduzir usando a regra 101 (relop)
+    $padrão  reduzir usando a regra 50 (statement_part)
 
 
 Estado 130
 
-  102 relop: T_LTE .
+   54 statements: statement_part .
 
-    $padrão  reduzir usando a regra 102 (relop)
+    $padrão  reduzir usando a regra 54 (statements)
 
 
 Estado 131
 
-  100 relop: T_LT .
+   80 condition: condition_if statements .
+   82          | condition_if statements . T_ELSE $@7 statements
 
-    $padrão  reduzir usando a regra 100 (relop)
+    T_ELSE  deslocar, e ir ao estado 168
+
+    T_ELSE    [reduzir usando a regra 80 (condition)]
+    $padrão  reduzir usando a regra 80 (condition)
 
 
 Estado 132
 
-   92 addop: T_PLUS .
+   53 statements: statement .
 
-    $padrão  reduzir usando a regra 92 (addop)
+    $padrão  reduzir usando a regra 53 (statements)
 
 
 Estado 133
 
-   93 addop: T_MINUS .
+   43 formal_parameter: T_IDENTIFIER T_COLON T_IDENTIFIER .
 
-    $padrão  reduzir usando a regra 93 (addop)
+    $padrão  reduzir usando a regra 43 (formal_parameter)
 
 
 Estado 134
 
-   94 addop: T_OR .
+   44 formal_parameter: T_VAR T_IDENTIFIER T_COLON . T_IDENTIFIER
 
-    $padrão  reduzir usando a regra 94 (addop)
+    T_IDENTIFIER  deslocar, e ir ao estado 169
 
 
 Estado 135
 
-   84 simple_expression: simple_expression addop . term
+   42 formal_parameter_list: formal_parameter T_SEMICOLON formal_parameter_list .
 
-    T_IDENTIFIER  deslocar, e ir ao estado 99
-    T_INTEGER     deslocar, e ir ao estado 100
-    T_LPAR        deslocar, e ir ao estado 101
-    T_NOT         deslocar, e ir ao estado 102
-
-    call    ir ao estado 103
-    term    ir ao estado 156
-    factor  ir ao estado 107
+    $padrão  reduzir usando a regra 42 (formal_parameter_list)
 
 
 Estado 136
 
-   82 expression: simple_expression relop . simple_expression
+   48 forward_parameter: T_IDENTIFIER T_COLON T_IDENTIFIER .
 
-    T_IDENTIFIER  deslocar, e ir ao estado 99
-    T_INTEGER     deslocar, e ir ao estado 100
-    T_LPAR        deslocar, e ir ao estado 101
-    T_NOT         deslocar, e ir ao estado 102
-
-    call               ir ao estado 103
-    simple_expression  ir ao estado 157
-    term               ir ao estado 106
-    factor             ir ao estado 107
+    $padrão  reduzir usando a regra 48 (forward_parameter)
 
 
 Estado 137
 
-   95 mulop: T_STAR .
+   49 forward_parameter: T_VAR T_IDENTIFIER T_COLON . T_IDENTIFIER
 
-    $padrão  reduzir usando a regra 95 (mulop)
+    T_IDENTIFIER  deslocar, e ir ao estado 170
 
 
 Estado 138
 
-   96 mulop: T_DIV .
+   47 forward_parameter_list: forward_parameter T_SEMICOLON forward_parameter_list .
 
-    $padrão  reduzir usando a regra 96 (mulop)
+    $padrão  reduzir usando a regra 47 (forward_parameter_list)
 
 
 Estado 139
 
-   97 mulop: T_AND .
+   66 assignment: T_IDENTIFIER T_ASSIGNMENT expression .
 
-    $padrão  reduzir usando a regra 97 (mulop)
+    $padrão  reduzir usando a regra 66 (assignment)
 
 
 Estado 140
 
-   86 term: term mulop . factor
+   69 call: T_IDENTIFIER $@5 T_LPAR . expression_list T_RPAR
 
-    T_IDENTIFIER  deslocar, e ir ao estado 99
-    T_INTEGER     deslocar, e ir ao estado 100
-    T_LPAR        deslocar, e ir ao estado 101
-    T_NOT         deslocar, e ir ao estado 102
+    T_IDENTIFIER  deslocar, e ir ao estado 115
+    T_INTEGER     deslocar, e ir ao estado 116
+    T_LPAR        deslocar, e ir ao estado 117
+    T_NOT         deslocar, e ir ao estado 118
 
-    call    ir ao estado 103
-    factor  ir ao estado 158
+    call               ir ao estado 119
+    expression_list    ir ao estado 171
+    expression         ir ao estado 172
+    simple_expression  ir ao estado 121
+    term               ir ao estado 122
+    factor             ir ao estado 123
 
 
 Estado 141
 
-   77 while: T_WHILE $@8 expression . T_DO $@9 statements
+   57 statement: T_INTEGER T_COLON $@4 . statement_nolabel
 
-    T_DO  deslocar, e ir ao estado 159
+    T_IDENTIFIER  deslocar, e ir ao estado 83
+    T_IF          deslocar, e ir ao estado 85
+    T_WHILE       deslocar, e ir ao estado 86
+    T_GOTO        deslocar, e ir ao estado 87
+    T_READ        deslocar, e ir ao estado 88
+    T_WRITE       deslocar, e ir ao estado 89
+
+    statement_nolabel  ir ao estado 173
+    assignment         ir ao estado 93
+    call_noparams      ir ao estado 94
+    call               ir ao estado 95
+    goto               ir ao estado 96
+    read               ir ao estado 97
+    write              ir ao estado 98
+    condition          ir ao estado 99
+    condition_if       ir ao estado 100
+    while              ir ao estado 101
 
 
 Estado 142
 
-   62 read: T_READ T_LPAR read_expression_list . T_RPAR
+   99 factor: T_LPAR expression . T_RPAR
 
-    T_RPAR  deslocar, e ir ao estado 160
+    T_RPAR  deslocar, e ir ao estado 174
 
 
 Estado 143
 
-   63 read_expression_list: read_expression .
-   64                     | read_expression . T_COMMA read_expression_list
+  100 factor: T_NOT factor .
 
-    T_COMMA  deslocar, e ir ao estado 161
-
-    $padrão  reduzir usando a regra 63 (read_expression_list)
+    $padrão  reduzir usando a regra 100 (factor)
 
 
 Estado 144
 
-   66 read_expression: $@6 . T_IDENTIFIER
+   83 condition_if: T_IF expression T_THEN .
 
-    T_IDENTIFIER  deslocar, e ir ao estado 162
+    $padrão  reduzir usando a regra 83 (condition_if)
 
 
 Estado 145
 
-   67 write: T_WRITE T_LPAR write_expression_list . T_RPAR
+  107 relop: T_EQ .
 
-    T_RPAR  deslocar, e ir ao estado 163
+    $padrão  reduzir usando a regra 107 (relop)
 
 
 Estado 146
 
-   68 write_expression_list: write_expression .
-   69                      | write_expression . T_COMMA write_expression_list
+  108 relop: T_NEQ .
 
-    T_COMMA  deslocar, e ir ao estado 164
-
-    $padrão  reduzir usando a regra 68 (write_expression_list)
+    $padrão  reduzir usando a regra 108 (relop)
 
 
 Estado 147
 
-   70 write_expression: expression .
+  112 relop: T_GTE .
 
-    $padrão  reduzir usando a regra 70 (write_expression)
+    $padrão  reduzir usando a regra 112 (relop)
 
 
 Estado 148
 
-   43 statement_list: statement_list T_SEMICOLON statement .
+  110 relop: T_GT .
 
-    $padrão  reduzir usando a regra 43 (statement_list)
+    $padrão  reduzir usando a regra 110 (relop)
 
 
 Estado 149
 
-   73 condition: condition_if statements T_ELSE . $@7 statements
+  111 relop: T_LTE .
 
-    $padrão  reduzir usando a regra 72 ($@7)
-
-    $@7  ir ao estado 165
+    $padrão  reduzir usando a regra 111 (relop)
 
 
 Estado 150
 
-   40 formal_parameter: T_VAR T_IDENTIFIER T_COLON T_IDENTIFIER .
+  109 relop: T_LT .
 
-    $padrão  reduzir usando a regra 40 (formal_parameter)
+    $padrão  reduzir usando a regra 109 (relop)
 
 
 Estado 151
 
-   57 assignment: T_IDENTIFIER . T_ASSIGNMENT expression
-   58 call_noparams: T_IDENTIFIER .
-   60 call: T_IDENTIFIER . $@5 T_LPAR expression_list T_RPAR
+  101 addop: T_PLUS .
 
-    T_ASSIGNMENT  deslocar, e ir ao estado 96
-
-    T_LPAR    reduzir usando a regra 59 ($@5)
-    $padrão  reduzir usando a regra 58 (call_noparams)
-
-    $@5  ir ao estado 98
+    $padrão  reduzir usando a regra 101 (addop)
 
 
 Estado 152
 
-   48 statement: T_IDENTIFIER T_COLON $@4 statement_nolabel .
+  102 addop: T_MINUS .
 
-    $padrão  reduzir usando a regra 48 (statement)
+    $padrão  reduzir usando a regra 102 (addop)
 
 
 Estado 153
 
-   60 call: T_IDENTIFIER $@5 T_LPAR expression_list . T_RPAR
+  103 addop: T_OR .
 
-    T_RPAR  deslocar, e ir ao estado 166
+    $padrão  reduzir usando a regra 103 (addop)
 
 
 Estado 154
 
-   78 expression_list: expression .
-   80                | expression . T_COMMA $@10 expression_list
+   93 simple_expression: simple_expression addop . term
 
-    T_COMMA  deslocar, e ir ao estado 167
+    T_IDENTIFIER  deslocar, e ir ao estado 115
+    T_INTEGER     deslocar, e ir ao estado 116
+    T_LPAR        deslocar, e ir ao estado 117
+    T_NOT         deslocar, e ir ao estado 118
 
-    $padrão  reduzir usando a regra 78 (expression_list)
+    call    ir ao estado 119
+    term    ir ao estado 175
+    factor  ir ao estado 123
 
 
 Estado 155
 
-   90 factor: T_LPAR expression T_RPAR .
+   91 expression: simple_expression relop . simple_expression
 
-    $padrão  reduzir usando a regra 90 (factor)
+    T_IDENTIFIER  deslocar, e ir ao estado 115
+    T_INTEGER     deslocar, e ir ao estado 116
+    T_LPAR        deslocar, e ir ao estado 117
+    T_NOT         deslocar, e ir ao estado 118
+
+    call               ir ao estado 119
+    simple_expression  ir ao estado 176
+    term               ir ao estado 122
+    factor             ir ao estado 123
 
 
 Estado 156
 
-   84 simple_expression: simple_expression addop term .
-   86 term: term . mulop factor
+  104 mulop: T_STAR .
 
-    T_STAR  deslocar, e ir ao estado 137
-    T_DIV   deslocar, e ir ao estado 138
-    T_AND   deslocar, e ir ao estado 139
-
-    $padrão  reduzir usando a regra 84 (simple_expression)
-
-    mulop  ir ao estado 140
+    $padrão  reduzir usando a regra 104 (mulop)
 
 
 Estado 157
 
-   82 expression: simple_expression relop simple_expression .
-   84 simple_expression: simple_expression . addop term
+  105 mulop: T_DIV .
 
-    T_PLUS   deslocar, e ir ao estado 132
-    T_MINUS  deslocar, e ir ao estado 133
-    T_OR     deslocar, e ir ao estado 134
-
-    $padrão  reduzir usando a regra 82 (expression)
-
-    addop  ir ao estado 135
+    $padrão  reduzir usando a regra 105 (mulop)
 
 
 Estado 158
 
-   86 term: term mulop factor .
+  106 mulop: T_AND .
 
-    $padrão  reduzir usando a regra 86 (term)
+    $padrão  reduzir usando a regra 106 (mulop)
 
 
 Estado 159
 
-   77 while: T_WHILE $@8 expression T_DO . $@9 statements
+   95 term: term mulop . factor
 
-    $padrão  reduzir usando a regra 76 ($@9)
+    T_IDENTIFIER  deslocar, e ir ao estado 115
+    T_INTEGER     deslocar, e ir ao estado 116
+    T_LPAR        deslocar, e ir ao estado 117
+    T_NOT         deslocar, e ir ao estado 118
 
-    $@9  ir ao estado 168
+    call    ir ao estado 119
+    factor  ir ao estado 177
 
 
 Estado 160
 
-   62 read: T_READ T_LPAR read_expression_list T_RPAR .
+   86 while: T_WHILE $@8 expression . T_DO $@9 statements
 
-    $padrão  reduzir usando a regra 62 (read)
+    T_DO  deslocar, e ir ao estado 178
 
 
 Estado 161
 
-   64 read_expression_list: read_expression T_COMMA . read_expression_list
+   71 read: T_READ T_LPAR read_expression_list . T_RPAR
 
-    $padrão  reduzir usando a regra 65 ($@6)
-
-    read_expression_list  ir ao estado 169
-    read_expression       ir ao estado 143
-    $@6                   ir ao estado 144
+    T_RPAR  deslocar, e ir ao estado 179
 
 
 Estado 162
 
-   66 read_expression: $@6 T_IDENTIFIER .
+   72 read_expression_list: read_expression .
+   73                     | read_expression . T_COMMA read_expression_list
 
-    $padrão  reduzir usando a regra 66 (read_expression)
+    T_COMMA  deslocar, e ir ao estado 180
+
+    $padrão  reduzir usando a regra 72 (read_expression_list)
 
 
 Estado 163
 
-   67 write: T_WRITE T_LPAR write_expression_list T_RPAR .
+   75 read_expression: $@6 . T_IDENTIFIER
 
-    $padrão  reduzir usando a regra 67 (write)
+    T_IDENTIFIER  deslocar, e ir ao estado 181
 
 
 Estado 164
 
-   69 write_expression_list: write_expression T_COMMA . write_expression_list
+   76 write: T_WRITE T_LPAR write_expression_list . T_RPAR
 
-    T_IDENTIFIER  deslocar, e ir ao estado 99
-    T_INTEGER     deslocar, e ir ao estado 100
-    T_LPAR        deslocar, e ir ao estado 101
-    T_NOT         deslocar, e ir ao estado 102
-
-    call                   ir ao estado 103
-    write_expression_list  ir ao estado 170
-    write_expression       ir ao estado 146
-    expression             ir ao estado 147
-    simple_expression      ir ao estado 105
-    term                   ir ao estado 106
-    factor                 ir ao estado 107
+    T_RPAR  deslocar, e ir ao estado 182
 
 
 Estado 165
 
-   73 condition: condition_if statements T_ELSE $@7 . statements
+   77 write_expression_list: write_expression .
+   78                      | write_expression . T_COMMA write_expression_list
 
-    T_IDENTIFIER  deslocar, e ir ao estado 73
-    T_BEGIN       deslocar, e ir ao estado 62
-    T_IF          deslocar, e ir ao estado 74
-    T_WHILE       deslocar, e ir ao estado 75
-    T_GOTO        deslocar, e ir ao estado 76
-    T_READ        deslocar, e ir ao estado 77
-    T_WRITE       deslocar, e ir ao estado 78
+    T_COMMA  deslocar, e ir ao estado 183
 
-    statement_part     ir ao estado 114
-    statements         ir ao estado 171
-    statement          ir ao estado 116
-    statement_nolabel  ir ao estado 81
-    assignment         ir ao estado 82
-    call_noparams      ir ao estado 83
-    call               ir ao estado 84
-    goto               ir ao estado 85
-    read               ir ao estado 86
-    write              ir ao estado 87
-    condition          ir ao estado 88
-    condition_if       ir ao estado 89
-    while              ir ao estado 90
+    $padrão  reduzir usando a regra 77 (write_expression_list)
 
 
 Estado 166
 
-   60 call: T_IDENTIFIER $@5 T_LPAR expression_list T_RPAR .
+   79 write_expression: expression .
 
-    $padrão  reduzir usando a regra 60 (call)
+    $padrão  reduzir usando a regra 79 (write_expression)
 
 
 Estado 167
 
-   80 expression_list: expression T_COMMA . $@10 expression_list
+   52 statement_list: statement_list T_SEMICOLON statement .
 
-    $padrão  reduzir usando a regra 79 ($@10)
-
-    $@10  ir ao estado 172
+    $padrão  reduzir usando a regra 52 (statement_list)
 
 
 Estado 168
 
-   77 while: T_WHILE $@8 expression T_DO $@9 . statements
+   82 condition: condition_if statements T_ELSE . $@7 statements
 
-    T_IDENTIFIER  deslocar, e ir ao estado 73
-    T_BEGIN       deslocar, e ir ao estado 62
-    T_IF          deslocar, e ir ao estado 74
-    T_WHILE       deslocar, e ir ao estado 75
-    T_GOTO        deslocar, e ir ao estado 76
-    T_READ        deslocar, e ir ao estado 77
-    T_WRITE       deslocar, e ir ao estado 78
+    $padrão  reduzir usando a regra 81 ($@7)
 
-    statement_part     ir ao estado 114
-    statements         ir ao estado 173
-    statement          ir ao estado 116
-    statement_nolabel  ir ao estado 81
-    assignment         ir ao estado 82
-    call_noparams      ir ao estado 83
-    call               ir ao estado 84
-    goto               ir ao estado 85
-    read               ir ao estado 86
-    write              ir ao estado 87
-    condition          ir ao estado 88
-    condition_if       ir ao estado 89
-    while              ir ao estado 90
+    $@7  ir ao estado 184
 
 
 Estado 169
 
-   64 read_expression_list: read_expression T_COMMA read_expression_list .
+   44 formal_parameter: T_VAR T_IDENTIFIER T_COLON T_IDENTIFIER .
 
-    $padrão  reduzir usando a regra 64 (read_expression_list)
+    $padrão  reduzir usando a regra 44 (formal_parameter)
 
 
 Estado 170
 
-   69 write_expression_list: write_expression T_COMMA write_expression_list .
+   49 forward_parameter: T_VAR T_IDENTIFIER T_COLON T_IDENTIFIER .
 
-    $padrão  reduzir usando a regra 69 (write_expression_list)
+    $padrão  reduzir usando a regra 49 (forward_parameter)
 
 
 Estado 171
 
-   73 condition: condition_if statements T_ELSE $@7 statements .
+   69 call: T_IDENTIFIER $@5 T_LPAR expression_list . T_RPAR
 
-    $padrão  reduzir usando a regra 73 (condition)
+    T_RPAR  deslocar, e ir ao estado 185
 
 
 Estado 172
 
-   80 expression_list: expression T_COMMA $@10 . expression_list
+   87 expression_list: expression .
+   89                | expression . T_COMMA $@10 expression_list
 
-    T_IDENTIFIER  deslocar, e ir ao estado 99
-    T_INTEGER     deslocar, e ir ao estado 100
-    T_LPAR        deslocar, e ir ao estado 101
-    T_NOT         deslocar, e ir ao estado 102
+    T_COMMA  deslocar, e ir ao estado 186
 
-    call               ir ao estado 103
-    expression_list    ir ao estado 174
-    expression         ir ao estado 154
-    simple_expression  ir ao estado 105
-    term               ir ao estado 106
-    factor             ir ao estado 107
+    $padrão  reduzir usando a regra 87 (expression_list)
 
 
 Estado 173
 
-   77 while: T_WHILE $@8 expression T_DO $@9 statements .
+   57 statement: T_INTEGER T_COLON $@4 statement_nolabel .
 
-    $padrão  reduzir usando a regra 77 (while)
+    $padrão  reduzir usando a regra 57 (statement)
 
 
 Estado 174
 
-   80 expression_list: expression T_COMMA $@10 expression_list .
+   99 factor: T_LPAR expression T_RPAR .
 
-    $padrão  reduzir usando a regra 80 (expression_list)
+    $padrão  reduzir usando a regra 99 (factor)
+
+
+Estado 175
+
+   93 simple_expression: simple_expression addop term .
+   95 term: term . mulop factor
+
+    T_STAR  deslocar, e ir ao estado 156
+    T_DIV   deslocar, e ir ao estado 157
+    T_AND   deslocar, e ir ao estado 158
+
+    $padrão  reduzir usando a regra 93 (simple_expression)
+
+    mulop  ir ao estado 159
+
+
+Estado 176
+
+   91 expression: simple_expression relop simple_expression .
+   93 simple_expression: simple_expression . addop term
+
+    T_PLUS   deslocar, e ir ao estado 151
+    T_MINUS  deslocar, e ir ao estado 152
+    T_OR     deslocar, e ir ao estado 153
+
+    $padrão  reduzir usando a regra 91 (expression)
+
+    addop  ir ao estado 154
+
+
+Estado 177
+
+   95 term: term mulop factor .
+
+    $padrão  reduzir usando a regra 95 (term)
+
+
+Estado 178
+
+   86 while: T_WHILE $@8 expression T_DO . $@9 statements
+
+    $padrão  reduzir usando a regra 85 ($@9)
+
+    $@9  ir ao estado 187
+
+
+Estado 179
+
+   71 read: T_READ T_LPAR read_expression_list T_RPAR .
+
+    $padrão  reduzir usando a regra 71 (read)
+
+
+Estado 180
+
+   73 read_expression_list: read_expression T_COMMA . read_expression_list
+
+    $padrão  reduzir usando a regra 74 ($@6)
+
+    read_expression_list  ir ao estado 188
+    read_expression       ir ao estado 162
+    $@6                   ir ao estado 163
+
+
+Estado 181
+
+   75 read_expression: $@6 T_IDENTIFIER .
+
+    $padrão  reduzir usando a regra 75 (read_expression)
+
+
+Estado 182
+
+   76 write: T_WRITE T_LPAR write_expression_list T_RPAR .
+
+    $padrão  reduzir usando a regra 76 (write)
+
+
+Estado 183
+
+   78 write_expression_list: write_expression T_COMMA . write_expression_list
+
+    T_IDENTIFIER  deslocar, e ir ao estado 115
+    T_INTEGER     deslocar, e ir ao estado 116
+    T_LPAR        deslocar, e ir ao estado 117
+    T_NOT         deslocar, e ir ao estado 118
+
+    call                   ir ao estado 119
+    write_expression_list  ir ao estado 189
+    write_expression       ir ao estado 165
+    expression             ir ao estado 166
+    simple_expression      ir ao estado 121
+    term                   ir ao estado 122
+    factor                 ir ao estado 123
+
+
+Estado 184
+
+   82 condition: condition_if statements T_ELSE $@7 . statements
+
+    T_IDENTIFIER  deslocar, e ir ao estado 83
+    T_INTEGER     deslocar, e ir ao estado 84
+    T_BEGIN       deslocar, e ir ao estado 67
+    T_IF          deslocar, e ir ao estado 85
+    T_WHILE       deslocar, e ir ao estado 86
+    T_GOTO        deslocar, e ir ao estado 87
+    T_READ        deslocar, e ir ao estado 88
+    T_WRITE       deslocar, e ir ao estado 89
+
+    statement_part     ir ao estado 130
+    statements         ir ao estado 190
+    statement          ir ao estado 132
+    statement_nolabel  ir ao estado 92
+    assignment         ir ao estado 93
+    call_noparams      ir ao estado 94
+    call               ir ao estado 95
+    goto               ir ao estado 96
+    read               ir ao estado 97
+    write              ir ao estado 98
+    condition          ir ao estado 99
+    condition_if       ir ao estado 100
+    while              ir ao estado 101
+
+
+Estado 185
+
+   69 call: T_IDENTIFIER $@5 T_LPAR expression_list T_RPAR .
+
+    $padrão  reduzir usando a regra 69 (call)
+
+
+Estado 186
+
+   89 expression_list: expression T_COMMA . $@10 expression_list
+
+    $padrão  reduzir usando a regra 88 ($@10)
+
+    $@10  ir ao estado 191
+
+
+Estado 187
+
+   86 while: T_WHILE $@8 expression T_DO $@9 . statements
+
+    T_IDENTIFIER  deslocar, e ir ao estado 83
+    T_INTEGER     deslocar, e ir ao estado 84
+    T_BEGIN       deslocar, e ir ao estado 67
+    T_IF          deslocar, e ir ao estado 85
+    T_WHILE       deslocar, e ir ao estado 86
+    T_GOTO        deslocar, e ir ao estado 87
+    T_READ        deslocar, e ir ao estado 88
+    T_WRITE       deslocar, e ir ao estado 89
+
+    statement_part     ir ao estado 130
+    statements         ir ao estado 192
+    statement          ir ao estado 132
+    statement_nolabel  ir ao estado 92
+    assignment         ir ao estado 93
+    call_noparams      ir ao estado 94
+    call               ir ao estado 95
+    goto               ir ao estado 96
+    read               ir ao estado 97
+    write              ir ao estado 98
+    condition          ir ao estado 99
+    condition_if       ir ao estado 100
+    while              ir ao estado 101
+
+
+Estado 188
+
+   73 read_expression_list: read_expression T_COMMA read_expression_list .
+
+    $padrão  reduzir usando a regra 73 (read_expression_list)
+
+
+Estado 189
+
+   78 write_expression_list: write_expression T_COMMA write_expression_list .
+
+    $padrão  reduzir usando a regra 78 (write_expression_list)
+
+
+Estado 190
+
+   82 condition: condition_if statements T_ELSE $@7 statements .
+
+    $padrão  reduzir usando a regra 82 (condition)
+
+
+Estado 191
+
+   89 expression_list: expression T_COMMA $@10 . expression_list
+
+    T_IDENTIFIER  deslocar, e ir ao estado 115
+    T_INTEGER     deslocar, e ir ao estado 116
+    T_LPAR        deslocar, e ir ao estado 117
+    T_NOT         deslocar, e ir ao estado 118
+
+    call               ir ao estado 119
+    expression_list    ir ao estado 193
+    expression         ir ao estado 172
+    simple_expression  ir ao estado 121
+    term               ir ao estado 122
+    factor             ir ao estado 123
+
+
+Estado 192
+
+   86 while: T_WHILE $@8 expression T_DO $@9 statements .
+
+    $padrão  reduzir usando a regra 86 (while)
+
+
+Estado 193
+
+   89 expression_list: expression T_COMMA $@10 expression_list .
+
+    $padrão  reduzir usando a regra 89 (expression_list)

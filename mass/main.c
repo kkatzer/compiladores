@@ -233,11 +233,14 @@ int type_strtoint (char* type) {
 }
 
 void dump_statements () {
+    if (fp == NULL) {
+      fp = fopen ("MEPA", "w");
+    }
     node s;
     s = stmt;
     while (s) {
         if (strlen (s->token_id) )
-            printf("%s", s->token_id);
+            fprintf(fp,"%s", s->token_id);
         strcpy (s->token_id, "");
         s = s->next;
     }
@@ -269,25 +272,67 @@ void parser_update_params (char* str_type) {
 }
 
 void parser_routine_identification (int category, char* identifier) {
+    /* Checa se o procedimento já existe */
+    int exists = 0;
+    node r = node_get_tail (symbol);
+    while (r && (exists == 0)) {
+        if ((r->category == CAT_PROCEDURE
+            || r->category == CAT_FUNCTION
+            || r->category == CAT_PROGRAM_ID)
+            && (strcmp(r->token_id, identifier) == 0))
+            exists = 1;
+        else
+            r = r->prev;
+    }
+
+    if (exists == 1) {
+        char* label_nada = malloc (sizeof(char) * TOKEN_SIZE);
+
+        ctrl->level++;
+        ctrl->location = 0;
+
+        sprintf (label_nada, "R%02d: ENPR %d",
+            r->label, r->level);
+
+        print_line (label_nada, "", r->token_id, 0);
+    } else {
+
+        /* Entra no procedimento. */
+
+        char* label_id = malloc (sizeof(char) * TOKEN_SIZE);
+        char* label_nada = malloc (sizeof(char) * TOKEN_SIZE);
+
+        ctrl->label_count++;
+        ctrl->level++;
+        ctrl->location = 0;
+
+        sprintf (label_id, "R%02d", ctrl->label_count);
+        sprintf (label_nada, "R%02d: ENPR %d",
+            ctrl->label_count, ctrl->level);
+
+        node_push (symbol, identifier, label_id,
+            category, TYPE_CONTROL,
+            ctrl->level, NO_LOCATION, ctrl->label_count);
+
+        print_line (label_nada, "", identifier, 0);
+
+    }
+
+}
+
+void parser_forward_identification (int category, char* identifier) {
 
     /* Entra no procedimento. */
 
     char* label_id = malloc (sizeof(char) * TOKEN_SIZE);
-    char* label_nada = malloc (sizeof(char) * TOKEN_SIZE);
 
     ctrl->label_count++;
-    ctrl->level++;
-    ctrl->location = 0;
 
     sprintf (label_id, "R%02d", ctrl->label_count);
-    sprintf (label_nada, "R%02d: ENPR %d",
-        ctrl->label_count, ctrl->level);
 
     node_push (symbol, identifier, label_id,
         category, TYPE_CONTROL,
-        ctrl->level, NO_LOCATION, ctrl->label_count);
-
-    print_line (label_nada, "", identifier, 0);
+        ctrl->level+1, NO_LOCATION, ctrl->label_count);
 
 }
 

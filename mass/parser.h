@@ -83,7 +83,8 @@ extern int yydebug;
     T_DO = 293,
     T_GOTO = 294,
     T_READ = 295,
-    T_WRITE = 296
+    T_WRITE = 296,
+    T_FORWARD = 297
   };
 #endif
 /* Tokens.  */
@@ -126,6 +127,7 @@ extern int yydebug;
 #define T_GOTO 294
 #define T_READ 295
 #define T_WRITE 296
+#define T_FORWARD 297
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -136,7 +138,7 @@ union YYSTYPE
 
     char str[TOKEN_SIZE];
 
-#line 140 "parser.h" /* yacc.c:1909  */
+#line 142 "parser.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
