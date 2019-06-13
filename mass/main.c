@@ -40,18 +40,22 @@ char* get_line(char* instruction, char* params,
     return line;
 }
 
+FILE* fp=NULL;
 void print_line(char* instruction, char* params,
     char* comment, int indent_line) {
 
-    printf("%s", get_line(instruction, params, comment, indent_line));
+    if (fp == NULL) {
+      fp = fopen ("MEPA", "w");
+    }
+
+    fprintf(fp, "%s", get_line(instruction, params, comment, indent_line));
 
 }
 
 void print_help() {
 
-    printf("\nUso: compiler [-c] -f <arquivo>\n\n");
+    printf("\nUso: compiler [-c] <arquivo>\n\n");
     printf("    -c Exibir comentÃ¡rios no cÃ³digo gerado.\n");
-    printf("    -f Arquivo com cÃ³digo Pascal a ser compilado.\n");
     printf("\n");
 
 }

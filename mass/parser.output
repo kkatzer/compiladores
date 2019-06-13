@@ -4,7 +4,7 @@ Terminals which are not used
    T_DOUBLE
 
 
-State 116 conflicts: 1 shift/reduce
+State 115 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -89,7 +89,7 @@ Grammar
 
    47 @4: /* empty */
 
-   48 statement: T_INTEGER T_COLON @4 statement_nolabel
+   48 statement: T_IDENTIFIER T_COLON @4 statement_nolabel
 
    49 statement_nolabel: assignment
    50                  | call_noparams
@@ -182,9 +182,10 @@ Terminals, with rules where they appear
 $end (0) 0
 error (256)
 T_IGNORE (258)
-T_IDENTIFIER (259) 2 3 4 17 18 21 31 33 34 35 39 40 57 58 60 66 87
+T_IDENTIFIER (259) 2 3 4 17 18 21 31 33 34 35 39 40 48 57 58 60 66
+    87
 T_DOUBLE (260)
-T_INTEGER (261) 12 48 61 89
+T_INTEGER (261) 12 61 89
 T_EQ (262) 98
 T_NEQ (263) 99
 T_GTE (264) 103
@@ -891,25 +892,24 @@ state 62
    41 statement_part: T_BEGIN . statement_list T_END
 
     T_IDENTIFIER  shift, and go to state 73
-    T_INTEGER     shift, and go to state 74
-    T_IF          shift, and go to state 75
-    T_WHILE       shift, and go to state 76
-    T_GOTO        shift, and go to state 77
-    T_READ        shift, and go to state 78
-    T_WRITE       shift, and go to state 79
+    T_IF          shift, and go to state 74
+    T_WHILE       shift, and go to state 75
+    T_GOTO        shift, and go to state 76
+    T_READ        shift, and go to state 77
+    T_WRITE       shift, and go to state 78
 
-    statement_list     go to state 80
-    statement          go to state 81
-    statement_nolabel  go to state 82
-    assignment         go to state 83
-    call_noparams      go to state 84
-    call               go to state 85
-    goto               go to state 86
-    read               go to state 87
-    write              go to state 88
-    condition          go to state 89
-    condition_if       go to state 90
-    while              go to state 91
+    statement_list     go to state 79
+    statement          go to state 80
+    statement_nolabel  go to state 81
+    assignment         go to state 82
+    call_noparams      go to state 83
+    call               go to state 84
+    goto               go to state 85
+    read               go to state 86
+    write              go to state 87
+    condition          go to state 88
+    condition_if       go to state 89
+    while              go to state 90
 
 
 state 63
@@ -937,21 +937,21 @@ state 66
 
    39 formal_parameter: T_IDENTIFIER . T_COLON T_IDENTIFIER
 
-    T_COLON  shift, and go to state 92
+    T_COLON  shift, and go to state 91
 
 
 state 67
 
    40 formal_parameter: T_VAR . T_IDENTIFIER T_COLON T_IDENTIFIER
 
-    T_IDENTIFIER  shift, and go to state 93
+    T_IDENTIFIER  shift, and go to state 92
 
 
 state 68
 
    36 formal_parameter_section: T_LPAR formal_parameter_list . T_RPAR
 
-    T_RPAR  shift, and go to state 94
+    T_RPAR  shift, and go to state 93
 
 
 state 69
@@ -959,7 +959,7 @@ state 69
    37 formal_parameter_list: formal_parameter .
    38                      | formal_parameter . T_SEMICOLON formal_parameter_list
 
-    T_SEMICOLON  shift, and go to state 95
+    T_SEMICOLON  shift, and go to state 94
 
     $default  reduce using rule 37 (formal_parameter_list)
 
@@ -982,16 +982,18 @@ state 72
 
    34 function_heading: function_identification formal_parameter_section T_COLON . T_IDENTIFIER
 
-    T_IDENTIFIER  shift, and go to state 96
+    T_IDENTIFIER  shift, and go to state 95
 
 
 state 73
 
+   48 statement: T_IDENTIFIER . T_COLON @4 statement_nolabel
    57 assignment: T_IDENTIFIER . T_ASSIGNMENT expression
    58 call_noparams: T_IDENTIFIER .
    60 call: T_IDENTIFIER . @5 T_LPAR expression_list T_RPAR
 
-    T_ASSIGNMENT  shift, and go to state 97
+    T_ASSIGNMENT  shift, and go to state 96
+    T_COLON       shift, and go to state 97
 
     T_LPAR    reduce using rule 59 (@5)
     $default  reduce using rule 58 (call_noparams)
@@ -1001,218 +1003,219 @@ state 73
 
 state 74
 
-   48 statement: T_INTEGER . T_COLON @4 statement_nolabel
+   74 condition_if: T_IF . expression T_THEN
 
-    T_COLON  shift, and go to state 99
+    T_IDENTIFIER  shift, and go to state 99
+    T_INTEGER     shift, and go to state 100
+    T_LPAR        shift, and go to state 101
+    T_NOT         shift, and go to state 102
+
+    call               go to state 103
+    expression         go to state 104
+    simple_expression  go to state 105
+    term               go to state 106
+    factor             go to state 107
 
 
 state 75
-
-   74 condition_if: T_IF . expression T_THEN
-
-    T_IDENTIFIER  shift, and go to state 100
-    T_INTEGER     shift, and go to state 101
-    T_LPAR        shift, and go to state 102
-    T_NOT         shift, and go to state 103
-
-    call               go to state 104
-    expression         go to state 105
-    simple_expression  go to state 106
-    term               go to state 107
-    factor             go to state 108
-
-
-state 76
 
    77 while: T_WHILE . @8 expression T_DO @9 statements
 
     $default  reduce using rule 75 (@8)
 
-    @8  go to state 109
+    @8  go to state 108
+
+
+state 76
+
+   61 goto: T_GOTO . T_INTEGER
+
+    T_INTEGER  shift, and go to state 109
 
 
 state 77
 
-   61 goto: T_GOTO . T_INTEGER
+   62 read: T_READ . T_LPAR read_expression_list T_RPAR
 
-    T_INTEGER  shift, and go to state 110
+    T_LPAR  shift, and go to state 110
 
 
 state 78
 
-   62 read: T_READ . T_LPAR read_expression_list T_RPAR
+   67 write: T_WRITE . T_LPAR write_expression_list T_RPAR
 
     T_LPAR  shift, and go to state 111
 
 
 state 79
 
-   67 write: T_WRITE . T_LPAR write_expression_list T_RPAR
-
-    T_LPAR  shift, and go to state 112
-
-
-state 80
-
    41 statement_part: T_BEGIN statement_list . T_END
    43 statement_list: statement_list . T_SEMICOLON statement
 
-    T_SEMICOLON  shift, and go to state 113
-    T_END        shift, and go to state 114
+    T_SEMICOLON  shift, and go to state 112
+    T_END        shift, and go to state 113
 
 
-state 81
+state 80
 
    42 statement_list: statement .
 
     $default  reduce using rule 42 (statement_list)
 
 
-state 82
+state 81
 
    46 statement: statement_nolabel .
 
     $default  reduce using rule 46 (statement)
 
 
-state 83
+state 82
 
    49 statement_nolabel: assignment .
 
     $default  reduce using rule 49 (statement_nolabel)
 
 
-state 84
+state 83
 
    50 statement_nolabel: call_noparams .
 
     $default  reduce using rule 50 (statement_nolabel)
 
 
-state 85
+state 84
 
    51 statement_nolabel: call .
 
     $default  reduce using rule 51 (statement_nolabel)
 
 
-state 86
+state 85
 
    52 statement_nolabel: goto .
 
     $default  reduce using rule 52 (statement_nolabel)
 
 
-state 87
+state 86
 
    53 statement_nolabel: read .
 
     $default  reduce using rule 53 (statement_nolabel)
 
 
-state 88
+state 87
 
    54 statement_nolabel: write .
 
     $default  reduce using rule 54 (statement_nolabel)
 
 
-state 89
+state 88
 
    55 statement_nolabel: condition .
 
     $default  reduce using rule 55 (statement_nolabel)
 
 
-state 90
+state 89
 
    71 condition: condition_if . statements
    73          | condition_if . statements T_ELSE @7 statements
 
     T_IDENTIFIER  shift, and go to state 73
-    T_INTEGER     shift, and go to state 74
     T_BEGIN       shift, and go to state 62
-    T_IF          shift, and go to state 75
-    T_WHILE       shift, and go to state 76
-    T_GOTO        shift, and go to state 77
-    T_READ        shift, and go to state 78
-    T_WRITE       shift, and go to state 79
+    T_IF          shift, and go to state 74
+    T_WHILE       shift, and go to state 75
+    T_GOTO        shift, and go to state 76
+    T_READ        shift, and go to state 77
+    T_WRITE       shift, and go to state 78
 
-    statement_part     go to state 115
-    statements         go to state 116
-    statement          go to state 117
-    statement_nolabel  go to state 82
-    assignment         go to state 83
-    call_noparams      go to state 84
-    call               go to state 85
-    goto               go to state 86
-    read               go to state 87
-    write              go to state 88
-    condition          go to state 89
-    condition_if       go to state 90
-    while              go to state 91
+    statement_part     go to state 114
+    statements         go to state 115
+    statement          go to state 116
+    statement_nolabel  go to state 81
+    assignment         go to state 82
+    call_noparams      go to state 83
+    call               go to state 84
+    goto               go to state 85
+    read               go to state 86
+    write              go to state 87
+    condition          go to state 88
+    condition_if       go to state 89
+    while              go to state 90
 
 
-state 91
+state 90
 
    56 statement_nolabel: while .
 
     $default  reduce using rule 56 (statement_nolabel)
 
 
-state 92
+state 91
 
    39 formal_parameter: T_IDENTIFIER T_COLON . T_IDENTIFIER
 
-    T_IDENTIFIER  shift, and go to state 118
+    T_IDENTIFIER  shift, and go to state 117
 
 
-state 93
+state 92
 
    40 formal_parameter: T_VAR T_IDENTIFIER . T_COLON T_IDENTIFIER
 
-    T_COLON  shift, and go to state 119
+    T_COLON  shift, and go to state 118
 
 
-state 94
+state 93
 
    36 formal_parameter_section: T_LPAR formal_parameter_list T_RPAR .
 
     $default  reduce using rule 36 (formal_parameter_section)
 
 
-state 95
+state 94
 
    38 formal_parameter_list: formal_parameter T_SEMICOLON . formal_parameter_list
 
     T_IDENTIFIER  shift, and go to state 66
     T_VAR         shift, and go to state 67
 
-    formal_parameter_list  go to state 120
+    formal_parameter_list  go to state 119
     formal_parameter       go to state 69
 
 
-state 96
+state 95
 
    34 function_heading: function_identification formal_parameter_section T_COLON T_IDENTIFIER .
 
     $default  reduce using rule 34 (function_heading)
 
 
-state 97
+state 96
 
    57 assignment: T_IDENTIFIER T_ASSIGNMENT . expression
 
-    T_IDENTIFIER  shift, and go to state 100
-    T_INTEGER     shift, and go to state 101
-    T_LPAR        shift, and go to state 102
-    T_NOT         shift, and go to state 103
+    T_IDENTIFIER  shift, and go to state 99
+    T_INTEGER     shift, and go to state 100
+    T_LPAR        shift, and go to state 101
+    T_NOT         shift, and go to state 102
 
-    call               go to state 104
-    expression         go to state 121
-    simple_expression  go to state 106
-    term               go to state 107
-    factor             go to state 108
+    call               go to state 103
+    expression         go to state 120
+    simple_expression  go to state 105
+    term               go to state 106
+    factor             go to state 107
+
+
+state 97
+
+   48 statement: T_IDENTIFIER T_COLON . @4 statement_nolabel
+
+    $default  reduce using rule 47 (@4)
+
+    @4  go to state 121
 
 
 state 98
@@ -1224,15 +1227,6 @@ state 98
 
 state 99
 
-   48 statement: T_INTEGER T_COLON . @4 statement_nolabel
-
-    $default  reduce using rule 47 (@4)
-
-    @4  go to state 123
-
-
-state 100
-
    60 call: T_IDENTIFIER . @5 T_LPAR expression_list T_RPAR
    87 factor: T_IDENTIFIER .
 
@@ -1242,438 +1236,437 @@ state 100
     @5  go to state 98
 
 
-state 101
+state 100
 
    89 factor: T_INTEGER .
 
     $default  reduce using rule 89 (factor)
 
 
-state 102
+state 101
 
    90 factor: T_LPAR . expression T_RPAR
 
-    T_IDENTIFIER  shift, and go to state 100
-    T_INTEGER     shift, and go to state 101
-    T_LPAR        shift, and go to state 102
-    T_NOT         shift, and go to state 103
+    T_IDENTIFIER  shift, and go to state 99
+    T_INTEGER     shift, and go to state 100
+    T_LPAR        shift, and go to state 101
+    T_NOT         shift, and go to state 102
 
-    call               go to state 104
-    expression         go to state 124
-    simple_expression  go to state 106
-    term               go to state 107
-    factor             go to state 108
+    call               go to state 103
+    expression         go to state 123
+    simple_expression  go to state 105
+    term               go to state 106
+    factor             go to state 107
 
 
-state 103
+state 102
 
    91 factor: T_NOT . factor
 
-    T_IDENTIFIER  shift, and go to state 100
-    T_INTEGER     shift, and go to state 101
-    T_LPAR        shift, and go to state 102
-    T_NOT         shift, and go to state 103
+    T_IDENTIFIER  shift, and go to state 99
+    T_INTEGER     shift, and go to state 100
+    T_LPAR        shift, and go to state 101
+    T_NOT         shift, and go to state 102
 
-    call    go to state 104
-    factor  go to state 125
+    call    go to state 103
+    factor  go to state 124
 
 
-state 104
+state 103
 
    88 factor: call .
 
     $default  reduce using rule 88 (factor)
 
 
-state 105
+state 104
 
    74 condition_if: T_IF expression . T_THEN
 
-    T_THEN  shift, and go to state 126
+    T_THEN  shift, and go to state 125
 
 
-state 106
+state 105
 
    81 expression: simple_expression .
    82           | simple_expression . relop simple_expression
    84 simple_expression: simple_expression . addop term
 
-    T_EQ     shift, and go to state 127
-    T_NEQ    shift, and go to state 128
-    T_GTE    shift, and go to state 129
-    T_GT     shift, and go to state 130
-    T_LTE    shift, and go to state 131
-    T_LT     shift, and go to state 132
-    T_PLUS   shift, and go to state 133
-    T_MINUS  shift, and go to state 134
-    T_OR     shift, and go to state 135
+    T_EQ     shift, and go to state 126
+    T_NEQ    shift, and go to state 127
+    T_GTE    shift, and go to state 128
+    T_GT     shift, and go to state 129
+    T_LTE    shift, and go to state 130
+    T_LT     shift, and go to state 131
+    T_PLUS   shift, and go to state 132
+    T_MINUS  shift, and go to state 133
+    T_OR     shift, and go to state 134
 
     $default  reduce using rule 81 (expression)
 
-    addop  go to state 136
-    relop  go to state 137
+    addop  go to state 135
+    relop  go to state 136
 
 
-state 107
+state 106
 
    83 simple_expression: term .
    86 term: term . mulop factor
 
-    T_STAR  shift, and go to state 138
-    T_DIV   shift, and go to state 139
-    T_AND   shift, and go to state 140
+    T_STAR  shift, and go to state 137
+    T_DIV   shift, and go to state 138
+    T_AND   shift, and go to state 139
 
     $default  reduce using rule 83 (simple_expression)
 
-    mulop  go to state 141
+    mulop  go to state 140
 
 
-state 108
+state 107
 
    85 term: factor .
 
     $default  reduce using rule 85 (term)
 
 
-state 109
+state 108
 
    77 while: T_WHILE @8 . expression T_DO @9 statements
 
-    T_IDENTIFIER  shift, and go to state 100
-    T_INTEGER     shift, and go to state 101
-    T_LPAR        shift, and go to state 102
-    T_NOT         shift, and go to state 103
+    T_IDENTIFIER  shift, and go to state 99
+    T_INTEGER     shift, and go to state 100
+    T_LPAR        shift, and go to state 101
+    T_NOT         shift, and go to state 102
 
-    call               go to state 104
-    expression         go to state 142
-    simple_expression  go to state 106
-    term               go to state 107
-    factor             go to state 108
+    call               go to state 103
+    expression         go to state 141
+    simple_expression  go to state 105
+    term               go to state 106
+    factor             go to state 107
 
 
-state 110
+state 109
 
    61 goto: T_GOTO T_INTEGER .
 
     $default  reduce using rule 61 (goto)
 
 
-state 111
+state 110
 
    62 read: T_READ T_LPAR . read_expression_list T_RPAR
 
     $default  reduce using rule 65 (@6)
 
-    read_expression_list  go to state 143
-    read_expression       go to state 144
-    @6                    go to state 145
+    read_expression_list  go to state 142
+    read_expression       go to state 143
+    @6                    go to state 144
+
+
+state 111
+
+   67 write: T_WRITE T_LPAR . write_expression_list T_RPAR
+
+    T_IDENTIFIER  shift, and go to state 99
+    T_INTEGER     shift, and go to state 100
+    T_LPAR        shift, and go to state 101
+    T_NOT         shift, and go to state 102
+
+    call                   go to state 103
+    write_expression_list  go to state 145
+    write_expression       go to state 146
+    expression             go to state 147
+    simple_expression      go to state 105
+    term                   go to state 106
+    factor                 go to state 107
 
 
 state 112
 
-   67 write: T_WRITE T_LPAR . write_expression_list T_RPAR
-
-    T_IDENTIFIER  shift, and go to state 100
-    T_INTEGER     shift, and go to state 101
-    T_LPAR        shift, and go to state 102
-    T_NOT         shift, and go to state 103
-
-    call                   go to state 104
-    write_expression_list  go to state 146
-    write_expression       go to state 147
-    expression             go to state 148
-    simple_expression      go to state 106
-    term                   go to state 107
-    factor                 go to state 108
-
-
-state 113
-
    43 statement_list: statement_list T_SEMICOLON . statement
 
     T_IDENTIFIER  shift, and go to state 73
-    T_INTEGER     shift, and go to state 74
-    T_IF          shift, and go to state 75
-    T_WHILE       shift, and go to state 76
-    T_GOTO        shift, and go to state 77
-    T_READ        shift, and go to state 78
-    T_WRITE       shift, and go to state 79
+    T_IF          shift, and go to state 74
+    T_WHILE       shift, and go to state 75
+    T_GOTO        shift, and go to state 76
+    T_READ        shift, and go to state 77
+    T_WRITE       shift, and go to state 78
 
-    statement          go to state 149
-    statement_nolabel  go to state 82
-    assignment         go to state 83
-    call_noparams      go to state 84
-    call               go to state 85
-    goto               go to state 86
-    read               go to state 87
-    write              go to state 88
-    condition          go to state 89
-    condition_if       go to state 90
-    while              go to state 91
+    statement          go to state 148
+    statement_nolabel  go to state 81
+    assignment         go to state 82
+    call_noparams      go to state 83
+    call               go to state 84
+    goto               go to state 85
+    read               go to state 86
+    write              go to state 87
+    condition          go to state 88
+    condition_if       go to state 89
+    while              go to state 90
 
 
-state 114
+state 113
 
    41 statement_part: T_BEGIN statement_list T_END .
 
     $default  reduce using rule 41 (statement_part)
 
 
-state 115
+state 114
 
    45 statements: statement_part .
 
     $default  reduce using rule 45 (statements)
 
 
-state 116
+state 115
 
    71 condition: condition_if statements .
    73          | condition_if statements . T_ELSE @7 statements
 
-    T_ELSE  shift, and go to state 150
+    T_ELSE  shift, and go to state 149
 
     T_ELSE    [reduce using rule 71 (condition)]
     $default  reduce using rule 71 (condition)
 
 
-state 117
+state 116
 
    44 statements: statement .
 
     $default  reduce using rule 44 (statements)
 
 
-state 118
+state 117
 
    39 formal_parameter: T_IDENTIFIER T_COLON T_IDENTIFIER .
 
     $default  reduce using rule 39 (formal_parameter)
 
 
-state 119
+state 118
 
    40 formal_parameter: T_VAR T_IDENTIFIER T_COLON . T_IDENTIFIER
 
-    T_IDENTIFIER  shift, and go to state 151
+    T_IDENTIFIER  shift, and go to state 150
 
 
-state 120
+state 119
 
    38 formal_parameter_list: formal_parameter T_SEMICOLON formal_parameter_list .
 
     $default  reduce using rule 38 (formal_parameter_list)
 
 
-state 121
+state 120
 
    57 assignment: T_IDENTIFIER T_ASSIGNMENT expression .
 
     $default  reduce using rule 57 (assignment)
 
 
+state 121
+
+   48 statement: T_IDENTIFIER T_COLON @4 . statement_nolabel
+
+    T_IDENTIFIER  shift, and go to state 151
+    T_IF          shift, and go to state 74
+    T_WHILE       shift, and go to state 75
+    T_GOTO        shift, and go to state 76
+    T_READ        shift, and go to state 77
+    T_WRITE       shift, and go to state 78
+
+    statement_nolabel  go to state 152
+    assignment         go to state 82
+    call_noparams      go to state 83
+    call               go to state 84
+    goto               go to state 85
+    read               go to state 86
+    write              go to state 87
+    condition          go to state 88
+    condition_if       go to state 89
+    while              go to state 90
+
+
 state 122
 
    60 call: T_IDENTIFIER @5 T_LPAR . expression_list T_RPAR
 
-    T_IDENTIFIER  shift, and go to state 100
-    T_INTEGER     shift, and go to state 101
-    T_LPAR        shift, and go to state 102
-    T_NOT         shift, and go to state 103
+    T_IDENTIFIER  shift, and go to state 99
+    T_INTEGER     shift, and go to state 100
+    T_LPAR        shift, and go to state 101
+    T_NOT         shift, and go to state 102
 
-    call               go to state 104
-    expression_list    go to state 152
-    expression         go to state 153
-    simple_expression  go to state 106
-    term               go to state 107
-    factor             go to state 108
+    call               go to state 103
+    expression_list    go to state 153
+    expression         go to state 154
+    simple_expression  go to state 105
+    term               go to state 106
+    factor             go to state 107
 
 
 state 123
-
-   48 statement: T_INTEGER T_COLON @4 . statement_nolabel
-
-    T_IDENTIFIER  shift, and go to state 73
-    T_IF          shift, and go to state 75
-    T_WHILE       shift, and go to state 76
-    T_GOTO        shift, and go to state 77
-    T_READ        shift, and go to state 78
-    T_WRITE       shift, and go to state 79
-
-    statement_nolabel  go to state 154
-    assignment         go to state 83
-    call_noparams      go to state 84
-    call               go to state 85
-    goto               go to state 86
-    read               go to state 87
-    write              go to state 88
-    condition          go to state 89
-    condition_if       go to state 90
-    while              go to state 91
-
-
-state 124
 
    90 factor: T_LPAR expression . T_RPAR
 
     T_RPAR  shift, and go to state 155
 
 
-state 125
+state 124
 
    91 factor: T_NOT factor .
 
     $default  reduce using rule 91 (factor)
 
 
-state 126
+state 125
 
    74 condition_if: T_IF expression T_THEN .
 
     $default  reduce using rule 74 (condition_if)
 
 
-state 127
+state 126
 
    98 relop: T_EQ .
 
     $default  reduce using rule 98 (relop)
 
 
-state 128
+state 127
 
    99 relop: T_NEQ .
 
     $default  reduce using rule 99 (relop)
 
 
-state 129
+state 128
 
   103 relop: T_GTE .
 
     $default  reduce using rule 103 (relop)
 
 
-state 130
+state 129
 
   101 relop: T_GT .
 
     $default  reduce using rule 101 (relop)
 
 
-state 131
+state 130
 
   102 relop: T_LTE .
 
     $default  reduce using rule 102 (relop)
 
 
-state 132
+state 131
 
   100 relop: T_LT .
 
     $default  reduce using rule 100 (relop)
 
 
-state 133
+state 132
 
    92 addop: T_PLUS .
 
     $default  reduce using rule 92 (addop)
 
 
-state 134
+state 133
 
    93 addop: T_MINUS .
 
     $default  reduce using rule 93 (addop)
 
 
-state 135
+state 134
 
    94 addop: T_OR .
 
     $default  reduce using rule 94 (addop)
 
 
-state 136
+state 135
 
    84 simple_expression: simple_expression addop . term
 
-    T_IDENTIFIER  shift, and go to state 100
-    T_INTEGER     shift, and go to state 101
-    T_LPAR        shift, and go to state 102
-    T_NOT         shift, and go to state 103
+    T_IDENTIFIER  shift, and go to state 99
+    T_INTEGER     shift, and go to state 100
+    T_LPAR        shift, and go to state 101
+    T_NOT         shift, and go to state 102
 
-    call    go to state 104
+    call    go to state 103
     term    go to state 156
-    factor  go to state 108
+    factor  go to state 107
 
 
-state 137
+state 136
 
    82 expression: simple_expression relop . simple_expression
 
-    T_IDENTIFIER  shift, and go to state 100
-    T_INTEGER     shift, and go to state 101
-    T_LPAR        shift, and go to state 102
-    T_NOT         shift, and go to state 103
+    T_IDENTIFIER  shift, and go to state 99
+    T_INTEGER     shift, and go to state 100
+    T_LPAR        shift, and go to state 101
+    T_NOT         shift, and go to state 102
 
-    call               go to state 104
+    call               go to state 103
     simple_expression  go to state 157
-    term               go to state 107
-    factor             go to state 108
+    term               go to state 106
+    factor             go to state 107
 
 
-state 138
+state 137
 
    95 mulop: T_STAR .
 
     $default  reduce using rule 95 (mulop)
 
 
-state 139
+state 138
 
    96 mulop: T_DIV .
 
     $default  reduce using rule 96 (mulop)
 
 
-state 140
+state 139
 
    97 mulop: T_AND .
 
     $default  reduce using rule 97 (mulop)
 
 
-state 141
+state 140
 
    86 term: term mulop . factor
 
-    T_IDENTIFIER  shift, and go to state 100
-    T_INTEGER     shift, and go to state 101
-    T_LPAR        shift, and go to state 102
-    T_NOT         shift, and go to state 103
+    T_IDENTIFIER  shift, and go to state 99
+    T_INTEGER     shift, and go to state 100
+    T_LPAR        shift, and go to state 101
+    T_NOT         shift, and go to state 102
 
-    call    go to state 104
+    call    go to state 103
     factor  go to state 158
 
 
-state 142
+state 141
 
    77 while: T_WHILE @8 expression . T_DO @9 statements
 
     T_DO  shift, and go to state 159
 
 
-state 143
+state 142
 
    62 read: T_READ T_LPAR read_expression_list . T_RPAR
 
     T_RPAR  shift, and go to state 160
 
 
-state 144
+state 143
 
    63 read_expression_list: read_expression .
    64                     | read_expression . T_COMMA read_expression_list
@@ -1683,21 +1676,21 @@ state 144
     $default  reduce using rule 63 (read_expression_list)
 
 
-state 145
+state 144
 
    66 read_expression: @6 . T_IDENTIFIER
 
     T_IDENTIFIER  shift, and go to state 162
 
 
-state 146
+state 145
 
    67 write: T_WRITE T_LPAR write_expression_list . T_RPAR
 
     T_RPAR  shift, and go to state 163
 
 
-state 147
+state 146
 
    68 write_expression_list: write_expression .
    69                      | write_expression . T_COMMA write_expression_list
@@ -1707,21 +1700,21 @@ state 147
     $default  reduce using rule 68 (write_expression_list)
 
 
-state 148
+state 147
 
    70 write_expression: expression .
 
     $default  reduce using rule 70 (write_expression)
 
 
-state 149
+state 148
 
    43 statement_list: statement_list T_SEMICOLON statement .
 
     $default  reduce using rule 43 (statement_list)
 
 
-state 150
+state 149
 
    73 condition: condition_if statements T_ELSE . @7 statements
 
@@ -1730,21 +1723,42 @@ state 150
     @7  go to state 165
 
 
-state 151
+state 150
 
    40 formal_parameter: T_VAR T_IDENTIFIER T_COLON T_IDENTIFIER .
 
     $default  reduce using rule 40 (formal_parameter)
 
 
+state 151
+
+   57 assignment: T_IDENTIFIER . T_ASSIGNMENT expression
+   58 call_noparams: T_IDENTIFIER .
+   60 call: T_IDENTIFIER . @5 T_LPAR expression_list T_RPAR
+
+    T_ASSIGNMENT  shift, and go to state 96
+
+    T_LPAR    reduce using rule 59 (@5)
+    $default  reduce using rule 58 (call_noparams)
+
+    @5  go to state 98
+
+
 state 152
+
+   48 statement: T_IDENTIFIER T_COLON @4 statement_nolabel .
+
+    $default  reduce using rule 48 (statement)
+
+
+state 153
 
    60 call: T_IDENTIFIER @5 T_LPAR expression_list . T_RPAR
 
     T_RPAR  shift, and go to state 166
 
 
-state 153
+state 154
 
    78 expression_list: expression .
    80                | expression . T_COMMA @10 expression_list
@@ -1752,13 +1766,6 @@ state 153
     T_COMMA  shift, and go to state 167
 
     $default  reduce using rule 78 (expression_list)
-
-
-state 154
-
-   48 statement: T_INTEGER T_COLON @4 statement_nolabel .
-
-    $default  reduce using rule 48 (statement)
 
 
 state 155
@@ -1773,13 +1780,13 @@ state 156
    84 simple_expression: simple_expression addop term .
    86 term: term . mulop factor
 
-    T_STAR  shift, and go to state 138
-    T_DIV   shift, and go to state 139
-    T_AND   shift, and go to state 140
+    T_STAR  shift, and go to state 137
+    T_DIV   shift, and go to state 138
+    T_AND   shift, and go to state 139
 
     $default  reduce using rule 84 (simple_expression)
 
-    mulop  go to state 141
+    mulop  go to state 140
 
 
 state 157
@@ -1787,13 +1794,13 @@ state 157
    82 expression: simple_expression relop simple_expression .
    84 simple_expression: simple_expression . addop term
 
-    T_PLUS   shift, and go to state 133
-    T_MINUS  shift, and go to state 134
-    T_OR     shift, and go to state 135
+    T_PLUS   shift, and go to state 132
+    T_MINUS  shift, and go to state 133
+    T_OR     shift, and go to state 134
 
     $default  reduce using rule 82 (expression)
 
-    addop  go to state 136
+    addop  go to state 135
 
 
 state 158
@@ -1826,8 +1833,8 @@ state 161
     $default  reduce using rule 65 (@6)
 
     read_expression_list  go to state 169
-    read_expression       go to state 144
-    @6                    go to state 145
+    read_expression       go to state 143
+    @6                    go to state 144
 
 
 state 162
@@ -1848,18 +1855,18 @@ state 164
 
    69 write_expression_list: write_expression T_COMMA . write_expression_list
 
-    T_IDENTIFIER  shift, and go to state 100
-    T_INTEGER     shift, and go to state 101
-    T_LPAR        shift, and go to state 102
-    T_NOT         shift, and go to state 103
+    T_IDENTIFIER  shift, and go to state 99
+    T_INTEGER     shift, and go to state 100
+    T_LPAR        shift, and go to state 101
+    T_NOT         shift, and go to state 102
 
-    call                   go to state 104
+    call                   go to state 103
     write_expression_list  go to state 170
-    write_expression       go to state 147
-    expression             go to state 148
-    simple_expression      go to state 106
-    term                   go to state 107
-    factor                 go to state 108
+    write_expression       go to state 146
+    expression             go to state 147
+    simple_expression      go to state 105
+    term                   go to state 106
+    factor                 go to state 107
 
 
 state 165
@@ -1867,27 +1874,26 @@ state 165
    73 condition: condition_if statements T_ELSE @7 . statements
 
     T_IDENTIFIER  shift, and go to state 73
-    T_INTEGER     shift, and go to state 74
     T_BEGIN       shift, and go to state 62
-    T_IF          shift, and go to state 75
-    T_WHILE       shift, and go to state 76
-    T_GOTO        shift, and go to state 77
-    T_READ        shift, and go to state 78
-    T_WRITE       shift, and go to state 79
+    T_IF          shift, and go to state 74
+    T_WHILE       shift, and go to state 75
+    T_GOTO        shift, and go to state 76
+    T_READ        shift, and go to state 77
+    T_WRITE       shift, and go to state 78
 
-    statement_part     go to state 115
+    statement_part     go to state 114
     statements         go to state 171
-    statement          go to state 117
-    statement_nolabel  go to state 82
-    assignment         go to state 83
-    call_noparams      go to state 84
-    call               go to state 85
-    goto               go to state 86
-    read               go to state 87
-    write              go to state 88
-    condition          go to state 89
-    condition_if       go to state 90
-    while              go to state 91
+    statement          go to state 116
+    statement_nolabel  go to state 81
+    assignment         go to state 82
+    call_noparams      go to state 83
+    call               go to state 84
+    goto               go to state 85
+    read               go to state 86
+    write              go to state 87
+    condition          go to state 88
+    condition_if       go to state 89
+    while              go to state 90
 
 
 state 166
@@ -1911,27 +1917,26 @@ state 168
    77 while: T_WHILE @8 expression T_DO @9 . statements
 
     T_IDENTIFIER  shift, and go to state 73
-    T_INTEGER     shift, and go to state 74
     T_BEGIN       shift, and go to state 62
-    T_IF          shift, and go to state 75
-    T_WHILE       shift, and go to state 76
-    T_GOTO        shift, and go to state 77
-    T_READ        shift, and go to state 78
-    T_WRITE       shift, and go to state 79
+    T_IF          shift, and go to state 74
+    T_WHILE       shift, and go to state 75
+    T_GOTO        shift, and go to state 76
+    T_READ        shift, and go to state 77
+    T_WRITE       shift, and go to state 78
 
-    statement_part     go to state 115
+    statement_part     go to state 114
     statements         go to state 173
-    statement          go to state 117
-    statement_nolabel  go to state 82
-    assignment         go to state 83
-    call_noparams      go to state 84
-    call               go to state 85
-    goto               go to state 86
-    read               go to state 87
-    write              go to state 88
-    condition          go to state 89
-    condition_if       go to state 90
-    while              go to state 91
+    statement          go to state 116
+    statement_nolabel  go to state 81
+    assignment         go to state 82
+    call_noparams      go to state 83
+    call               go to state 84
+    goto               go to state 85
+    read               go to state 86
+    write              go to state 87
+    condition          go to state 88
+    condition_if       go to state 89
+    while              go to state 90
 
 
 state 169
@@ -1959,17 +1964,17 @@ state 172
 
    80 expression_list: expression T_COMMA @10 . expression_list
 
-    T_IDENTIFIER  shift, and go to state 100
-    T_INTEGER     shift, and go to state 101
-    T_LPAR        shift, and go to state 102
-    T_NOT         shift, and go to state 103
+    T_IDENTIFIER  shift, and go to state 99
+    T_INTEGER     shift, and go to state 100
+    T_LPAR        shift, and go to state 101
+    T_NOT         shift, and go to state 102
 
-    call               go to state 104
+    call               go to state 103
     expression_list    go to state 174
-    expression         go to state 153
-    simple_expression  go to state 106
-    term               go to state 107
-    factor             go to state 108
+    expression         go to state 154
+    simple_expression  go to state 105
+    term               go to state 106
+    factor             go to state 107
 
 
 state 173

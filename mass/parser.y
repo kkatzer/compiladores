@@ -310,7 +310,7 @@ statement :
     {
         dump_statements();
     }
-    | T_INTEGER T_COLON
+    | T_IDENTIFIER T_COLON
     {
         node p = node_get (symbol, $1);
         node r = node_get_routine ();
@@ -350,7 +350,7 @@ assignment :
 
         node e = node_pop (type);
         if (e->type == TYPE_BOOLEAN)
-            yyerror ("atribuiÃ§Ã£o invÃ¡lida.");
+            yyerror ("atribuição inválida.");
 
         if (p->category == CAT_PARAMREF)
             strcpy (mode, "ARMI");
@@ -533,7 +533,7 @@ condition_if :
     {
         node p = node_pop (type);
         if (p->type != TYPE_BOOLEAN)
-            yyerror ("expressÃ£o em if nÃ£o Ã© booleana.");
+            yyerror ("expressão em if não é booleana.");
 
         /*
          * Testa condiÃ§Ã£o e marca o rÃ³tulo de inÃ­cio do else
@@ -635,7 +635,7 @@ expression :
         node q = node_pop (type);
 
         if (p->type != q->type)
-            yyerror ("comparaÃ§Ã£o relop entre tipos invÃ¡lidos.");
+            yyerror ("comparação relop entre tipos inválidos.");
 
         node_push (type, p->token_id, "",
             CAT_TYPE, TYPE_BOOLEAN,
@@ -656,7 +656,7 @@ simple_expression :
 
         if (p->type != TYPE_INTEGER ||
             q->type != TYPE_INTEGER)
-            yyerror ("addop entre tipos invÃ¡lidos.");
+            yyerror ("addop entre tipos inválidos.");
 
         node_push (type, p->token_id, "",
             CAT_TYPE, TYPE_INTEGER,
@@ -677,7 +677,7 @@ term :
 
         if (p->type != TYPE_INTEGER ||
             q->type != TYPE_INTEGER)
-            yyerror ("mulop entre tipos invÃ¡lidos.");
+            yyerror ("mulop entre tipos inválidos.");
 
         node_push (type, p->token_id, "",
             CAT_TYPE, TYPE_INTEGER,
@@ -770,7 +770,7 @@ factor :
         node p = node_pop (type);
 
         if (p->type != TYPE_BOOLEAN)
-            yyerror ("not em tipo invÃ¡lido.");
+            yyerror ("not em tipo inválido.");
 
         node_push (type, p->token_id, "",
             CAT_TYPE, TYPE_BOOLEAN,
@@ -808,9 +808,6 @@ relop :
 
 void yyerror (const char *msg) {
     fprintf(stderr, "\nErro linha %d: %s\n", yyget_lineno(), msg);
-    fprintf(stderr, "Buffer de comandos:\n");
-    dump_statements();
-    fprintf(stderr, "\n");
 }
 
 int main (int argc, char** argv) {
@@ -818,32 +815,19 @@ int main (int argc, char** argv) {
     FILE* fp;
     extern FILE* yyin;
 
-    char c;
-    char *file = NULL;
-
     init();
 
     ctrl->print_comments = 0;
 
-    while ((c = getopt (argc, argv, "cf:t")) != -1) {
-        switch (c) {
-            case 'c':
-                ctrl->print_comments = 1;
-            break;
-            case 'f':
-                file = optarg;
-            break;
-            default:
-                print_help();
-                return -1;
-            break;
-        }
-    }
+    if (argc<2 || argc>2) {
+          printf("usage compilador <arq>a %d\n", argc);
+          return(-1);
+       }
 
-    fp = fopen (file, "r");
+    fp=fopen (argv[1], "r");
     if (fp == NULL) {
-        print_help();
-        return -1;
+       printf("usage compilador <arq>b\n");
+       return(-1);
     }
 
     yyin = fp;
