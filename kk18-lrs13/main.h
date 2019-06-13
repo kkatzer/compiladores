@@ -64,7 +64,7 @@ typedef enum simbolos {
   simb_while, simb_do, simb_mais, simb_menos, simb_or,
   simb_multiplicacao, simb_div, simb_and, simb_not,
   simb_igual, simb_nigual, simb_maigual, simb_meigual,
-  simb_menor, simb_maior,
+  simb_menor, simb_maior, simb_read, simb_write
 } simbolos;
 
 typedef struct symbol symbol;
@@ -102,7 +102,7 @@ int label_count;
 
 simbolos simbolo, relacao;
 char token[TAM_TOKEN];
-symbol *topo;
+symbol *topo, *tipo, *slabel;
 
 
 /* -------------------------------------------------------------------
@@ -114,8 +114,13 @@ int imprimeErro ( char* erro );
 
 //Tabela de Simbolos (global)
 void empilhaSimbolo (char* name, char* value, int category, int type, int location, int label, int level);
-symbol *desempilhaSimbolo (int tipo);
+void empilhaTipo (char *nome, int category, int type, int location, int label, int level);
+void empilhaLabel (char *nome, int category, int type, int location, int label, int level);
+symbol *desempilhaSimbolo ();
+symbol *desempilhaTipo ();
+symbol *desempilhaLabel ();
 symbol *getSimbolo(char *nome);
+char *get_pos(symbol *s);
 
 int strtoint (char* type);
 void parser_update_params (char* str_type);

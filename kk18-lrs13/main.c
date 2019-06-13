@@ -59,29 +59,58 @@ void empilhaSimbolo (char *name, char *value, int category, int type, int locati
   topo = s;
 }
 
-symbol *desempilhaSimbolo (int tipo) {
+void empilhaTipo (char *name, int category, int type, int location, int label, int level) {
+  symbol *s = (symbol *)malloc(sizeof(struct symbol));
+  strcpy(s->name, name);
+  s->category = category;
+  s->type = type;
+
+  s->location = location;
+
+  s->label = label;
+  s->level = level;
+
+  s->next = tipo;
+  tipo = s;
+}
+
+void empilhaLabel (char *name, int category, int type, int location, int label, int level) {
+  symbol *s = (symbol *)malloc(sizeof(struct symbol));
+  strcpy(s->name, name);
+  s->category = category;
+  s->type = type;
+
+  s->location = location;
+
+  s->label = label;
+  s->level = level;
+
+  s->next = slabel;
+  slabel = s;
+}
+
+symbol *desempilhaSimbolo () {
   symbol *pop = topo;
-  symbol *ret;
-  if (tipo == TYPE_UNDEFINED) {
-    topo = topo->next;
-    return pop;
-  } else {
-    while (pop->next->type != tipo) {
-      if (pop->next == NULL) {
-        exit(0);
-      }
-      pop = pop->next;
-    }
-    ret = pop->next;
-    pop->next = pop->next->next;
-    return ret;
-  }
+  topo = topo->next;
+  return pop;
+}
+
+symbol *desempilhaTipo () {
+  symbol *pop = tipo;
+  tipo = tipo->next;
+  return pop;
+}
+
+symbol *desempilhaLabel () {
+  symbol *pop = slabel;
+  slabel = slabel->next;
+  return pop;
 }
 
 symbol *getSimbolo(char *nome) {
   symbol *s = topo;
   while (s) {
-    if (strcmp(s->name, nome) == 0)
+    if (strcmp(s->name, nome) == 0 && s->level <= nivel_lexico)
       return s;
     s = s->next;
   }
@@ -139,4 +168,11 @@ symbol *get_routine() {
     r = r->next;
   }
   exit(0);
+}
+
+char *get_pos(symbol *s) {
+  char *pos = (char *)malloc(sizeof(char) * TAM_TOKEN);
+  sprintf(pos, "%d, %d", s->level, s->location);
+
+  return pos;
 }

@@ -211,28 +211,34 @@ not { simbolo = simb_not;
           return MEIGUAL;
  }
 
-\<=  { simbolo = simb_maigual;
+\>=  { simbolo = simb_maigual;
           strncpy (token, yytext, TAM_TOKEN);
           IMPRIME(" maigual ");
           return MAIGUAL;
  }
 
-\<=  { simbolo = simb_menor;
+\<  { simbolo = simb_menor;
           strncpy (token, yytext, TAM_TOKEN);
           IMPRIME(" menor ");
           return MENOR;
  }
 
-\<=  { simbolo = simb_maior;
+\>  { simbolo = simb_maior;
           strncpy (token, yytext, TAM_TOKEN);
           IMPRIME(" maior ");
           return MAIOR;
  }
 
-div  { simbolo = simb_menos;
+read  { simbolo = simb_read;
           strncpy (token, yytext, TAM_TOKEN);
-          IMPRIME(" menos ");
-          return MENOS;
+          IMPRIME(" read ");
+          return READ;
+ }
+
+write  { simbolo = simb_write;
+          strncpy (token, yytext, TAM_TOKEN);
+          IMPRIME(" write ");
+          return WRITE;
  }
 
 {numero} { simbolo = simb_numero;

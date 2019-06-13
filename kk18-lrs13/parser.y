@@ -26,9 +26,10 @@ int num_vars;
 %token WHILE DO MAIS MENOS OR
 %token MULTIPLICACAO DIV AND NOT NUMERO
 %token IGUAL MAIGUAL MEIGUAL MAIOR MENOR
-%token NIGUAL
+%token NIGUAL READ WRITE
 
 %type <str> IDENT
+%type <str> NUMERO
 %type <str> relop
 %type <str> addop
 %type <str> mulop
@@ -62,6 +63,8 @@ bloco       :
               {
                 //Rotulo de inicio de procedimento
                 label_count++;
+                nivel_lexico++;
+                desloc = 0;
 
                 char* label_id = (char *)malloc (sizeof(char) * TAM_TOKEN);
                 /* char* label_comment = (char *)malloc (sizeof(char) * TAM_TOKEN); */
@@ -114,13 +117,13 @@ tipo        : IDENT
 
 lista_id_var: lista_id_var VIRGULA IDENT
               {
-                empilhaSimbolo(token, "", CAT_VARIABLE, TYPE_UNDEFINED, nl, NO_LABEL, nivel_lexico);
-                nl++;
+                empilhaSimbolo(token, "", CAT_VARIABLE, TYPE_UNDEFINED, desloc, NO_LABEL, nivel_lexico);
+                desloc++;
               }
             | IDENT
               {
-                empilhaSimbolo(token, "", CAT_VARIABLE, TYPE_UNDEFINED, nl, NO_LABEL, nivel_lexico);
-                nl++;
+                empilhaSimbolo(token, "", CAT_VARIABLE, TYPE_UNDEFINED, desloc, NO_LABEL, nivel_lexico);
+                desloc++;
               }
 ;
 
@@ -137,8 +140,6 @@ comandos: comando
 ;
 
 comando: atribuicao
-       | call_noparams
-       | call
        | read
        | write
        | condition
@@ -147,51 +148,147 @@ comando: atribuicao
 
 atribuicao : IDENT ATRIBUICAO expression
              {
-                char* com = (char *)malloc(sizeof(char) * TAM_TOKEN);
                 symbol* s = getSimbolo($1);
-                sprintf(com, "%d", s->location);
-                if (s->category == CAT_PARAMREF)
-                  geraCodigo(NULL, "ARMI", com);
-                else
-                  geraCodigo(NULL, "ARMZ", com);
+                geraCodigo(NULL, "ARMZ", get_pos(s));
              }
 
 ;
 
-call_noparams : {}
+read : READ ABRE_PARENTESES read_expression_list FECHA_PARENTESES
 ;
 
-call : {}
+read_expression_list : read_expression
+                     | read_expression VIRGULA read_expression_list
 ;
 
-read : {}
+read_expression : {
+                    geraCodigo(NULL, "LEIT", "");
+                  }
+                  IDENT
+                  {
+                    symbol *s = getSimbolo($2);
+                    geraCodigo(NULL, "ARMZ", get_pos(s));
+                  }
+
+write : WRITE ABRE_PARENTESES write_expression_list FECHA_PARENTESES
 ;
 
-write : {}
+write_expression_list : write_expression
+                      | write_expression VIRGULA write_expression_list
+
+write_expression : expression
+                   {
+                     geraCodigo(NULL, "IMPR", "");
+                   }
+
+condition : condition_if comandos
+            {
+              /* Rotulo de fim da condicao */
+
+              symbol *s = desempilhaLabel();
+              char *labelFim = (char *)malloc(sizeof(char) * TAM_TOKEN);
+              sprintf(labelFim, "R%02d", s->label);
+
+              geraCodigo(labelFim, "NADA", "");
+            }
+            | condition_if comandos ELSE
+            {
+              /* final do if com else */
+              label_count++;
+
+              symbol *s_else = desempilhaLabel();
+
+              /* desvio para rótulo de fim do else */
+              char *label_id = (char *)malloc(sizeof(char)*TAM_TOKEN);
+              sprintf(label_id, "R%02d", label_count);
+
+              empilhaLabel(label_id, CAT_LABEL, TYPE_CONTROL, desloc, NO_LABEL, nivel_lexico);
+
+              geraCodigo(NULL, "DSVS", label_id);
+
+              /* Rótulo de início do else */
+
+              char *labelFim = (char *)malloc(sizeof(char) * TAM_TOKEN);
+              sprintf(labelFim, "R%02d", s_else->label);
+
+              geraCodigo(labelFim, "NADA", "");
+            }
+            comandos
+            {
+              symbol *s = desempilhaLabel();
+              char *labelFim = (char *)malloc(sizeof(char) * TAM_TOKEN);
+              sprintf(labelFim, "R%02d", s->label);
+
+              geraCodigo(labelFim, "NADA", "");
+            }
 ;
 
-condition : {}
-;
+condition_if : IF expression THEN
+               {
+                 symbol *t = desempilhaTipo();
+                 if (t->type != TYPE_BOOLEAN)
+                    yyerror("Expressão em if não é booleana");
 
-while : {}
+                 label_count++;
+
+                 char *label_id = (char *)malloc(sizeof(char) * TAM_TOKEN);
+                 sprintf(label_id, "R%02d", label_count);
+
+                 empilhaLabel(label_id, CAT_LABEL, TYPE_CONTROL, desloc, NO_LABEL, nivel_lexico);
+
+                 geraCodigo(NULL, "DSVF", label_id);
+               }
+
+while : WHILE
+        {
+          char *label_id = (char *)malloc(sizeof(char) * TAM_TOKEN);
+
+          label_count++;
+
+          sprintf(label_id, "R%02d", label_count);
+
+          empilhaLabel(label_id, CAT_LABEL, TYPE_CONTROL, desloc, NO_LABEL, nivel_lexico);
+          geraCodigo(label_id, "NADA", "");
+        }
+        expression DO
+        {
+          symbol *t = desempilhaTipo();
+          if (t->type != TYPE_BOOLEAN)
+            yyerror("Expressão em if não é booleana");
+
+          label_count++;
+
+          char *label_id = (char *)malloc(sizeof(char) * TAM_TOKEN);
+          sprintf(label_id, "R%02d", label_count);
+
+          empilhaLabel(label_id, CAT_LABEL, TYPE_CONTROL, desloc, label_count, nivel_lexico);
+          geraCodigo(NULL, "DSVF", label_id);
+        }
+        comando_composto
+        {
+          symbol *endw = desempilhaLabel();
+          symbol *w = desempilhaLabel();
+
+          char *labelFim = (char *)malloc(sizeof(char) * TAM_TOKEN);
+          sprintf(labelFim, "R%02d", endw->label);
+
+          geraCodigo(NULL, "DSVS", w->name);
+          geraCodigo(labelFim, "NADA", "");
+        }
 ;
 
 expression : simple_expression
-           {
-             //Não usa
-             desempilhaSimbolo(TYPE_UNDEFINED);
-           }
            | simple_expression relop simple_expression
            {
               //Checa se são do mesmo tipo antes de comparar
-              symbol *p = desempilhaSimbolo(TYPE_UNDEFINED);
-              symbol *q = desempilhaSimbolo(TYPE_UNDEFINED);
+              symbol *p = desempilhaTipo();
+              symbol *q = desempilhaTipo();
 
               if (p->type != q->type)
                 yyerror("Comparação relop entre tipos diferentes.");
               geraCodigo(NULL, $2, "");
 
-              empilhaSimbolo("", "", CAT_STATEMENT, TYPE_BOOLEAN, NO_LOCATION, NO_LABEL, NO_LEVEL);
+              empilhaTipo($2, CAT_STATEMENT, TYPE_BOOLEAN, NO_LOCATION, NO_LABEL, NO_LEVEL);
            }
 ;
 
@@ -199,15 +296,15 @@ simple_expression : term
                   | simple_expression addop term
                   {
                      //Checa se são inteiros antes de fazer addop
-                    symbol *p = desempilhaSimbolo(TYPE_UNDEFINED);
-                    symbol *q = desempilhaSimbolo(TYPE_UNDEFINED);
+                    symbol *p = desempilhaTipo();
+                    symbol *q = desempilhaTipo();
 
                     if (p->type != TYPE_INTEGER ||
                         q->type != TYPE_INTEGER)
                         yyerror("Addop entre tipos inválidos.");
                     geraCodigo(NULL, $2, "");
 
-                    empilhaSimbolo("", "", CAT_STATEMENT, TYPE_INTEGER, NO_LOCATION, NO_LABEL, NO_LEVEL);
+                    empilhaTipo($2, CAT_STATEMENT, TYPE_INTEGER, NO_LOCATION, NO_LABEL, NO_LEVEL);
                   }
 ;
 
@@ -215,33 +312,40 @@ term : factor
      | term mulop factor
      {
         //Checa se são inteiros antes de fazer addop
-       symbol *p = desempilhaSimbolo(TYPE_UNDEFINED);
-       symbol *q = desempilhaSimbolo(TYPE_UNDEFINED);
+       symbol *p = desempilhaTipo();
+       symbol *q = desempilhaTipo();
 
        if (p->type != TYPE_INTEGER ||
            q->type != TYPE_INTEGER)
            yyerror("Mulop entre tipos inválidos.");
        geraCodigo(NULL, $2, "");
 
-       empilhaSimbolo("", "", CAT_STATEMENT, TYPE_INTEGER, NO_LOCATION, NO_LABEL, NO_LEVEL);
+       empilhaTipo($2, CAT_STATEMENT, TYPE_INTEGER, NO_LOCATION, NO_LABEL, NO_LEVEL);
      }
 ;
 
 factor : NUMERO
        {
          geraCodigo(NULL, "CRCT", token);
-         empilhaSimbolo("", "", CAT_STATEMENT, TYPE_INTEGER, NO_LOCATION, NO_LABEL, NO_LEVEL);
+         empilhaTipo($1, CAT_STATEMENT, TYPE_INTEGER, NO_LOCATION, NO_LABEL, NO_LEVEL);
        }
        | ABRE_PARENTESES expression FECHA_PARENTESES
        | NOT factor {
-         symbol *s = desempilhaSimbolo(TYPE_UNDEFINED);
+         symbol *s = desempilhaSimbolo();
 
          if (s->type != TYPE_BOOLEAN)
             yyerror("Not em tipo inválido.");
 
          geraCodigo(NULL, "NEGA", "");
 
-         empilhaSimbolo("", "", CAT_STATEMENT, TYPE_BOOLEAN, NO_LOCATION, NO_LABEL, NO_LEVEL);
+         empilhaTipo(s->name, CAT_STATEMENT, s->type, NO_LOCATION, NO_LABEL, NO_LEVEL);
+       }
+       | IDENT
+       {
+         symbol *s = getSimbolo($1);
+
+         geraCodigo(NULL, "CRVL", get_pos(s));
+         empilhaTipo(s->name, CAT_STATEMENT, s->type, NO_LOCATION, NO_LABEL, NO_LEVEL);
        }
 ;
 
@@ -280,8 +384,8 @@ int main (int argc, char** argv) {
    }
 
    label_count = -1;
-   nl = 0;
    nivel_lexico = 0;
+   desloc = 0;
 
    yyin=fp;
    yyparse();
