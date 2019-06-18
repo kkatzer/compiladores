@@ -81,6 +81,7 @@ node label;
 node stmt;
 node call;
 node type;
+node forward;
 
 char* get_line (char* instruction, char* params,
     char* comment, int indent_line);
@@ -99,6 +100,7 @@ node node_get (node l, char* token_id);
 node node_get_tail  (node l);
 node node_get_routine ();
 node node_get_symbol (char* token_id);
+node node_get_forward (char* token_id);
 
 char* node_get_label (node l, char* token_id);
 char* node_get_pos (node l, char* token_id);
@@ -114,6 +116,7 @@ void parser_update_params (char* str_type);
 void parser_routine_declaration ();
 void parser_routine_identification (int category, char* identifier);
 void parser_forward_identification (int category, char* identifier);
+void print_routine(int category, char* identifier);
 
 #include "parser.h"
 

@@ -12,6 +12,7 @@ void init() {
     stmt = (node) malloc (sizeof(struct _node));
     call = (node) malloc (sizeof(struct _node));
     type = (node) malloc (sizeof(struct _node));
+    forward = (node) malloc (sizeof(struct _node));
 
 }
 
@@ -155,6 +156,17 @@ node node_get_symbol (char* token_id) {
     exit(1);
 }
 
+node node_get_forward (char* token_id) {
+    node l = node_get_tail (forward);
+    while (l) {
+        if (strcmp(l->token_id, token_id) == 0)
+            return l;
+        l = l->prev;
+    }
+
+    return NULL;
+}
+
 char* node_get_symbol_pos (char* token_id) {
 
     node p = (node) malloc(sizeof(struct _node));
@@ -272,68 +284,55 @@ void parser_update_params (char* str_type) {
 }
 
 void parser_routine_identification (int category, char* identifier) {
-    /* Checa se o procedimento já existe */
-    int exists = 0;
-    node r = node_get_tail (symbol);
-    while (r && (exists == 0)) {
-        if ((r->category == CAT_PROCEDURE
-            || r->category == CAT_FUNCTION
-            || r->category == CAT_PROGRAM_ID)
-            && (strcmp(r->token_id, identifier) == 0))
-            exists = 1;
-        else
-            r = r->prev;
+    node p = node_get_forward(identifier);
+
+    if (p == NULL) {
+      char* label_id = malloc (sizeof(char) * TOKEN_SIZE);
+      char* label_nada = malloc (sizeof(char) * TOKEN_SIZE);
+
+      ctrl->label_count++;
+      ctrl->level++;
+      ctrl->location = 0;
+
+      sprintf (label_id, "R%02d", ctrl->label_count);
+      sprintf (label_nada, "R%02d: ENPR %d",
+          ctrl->label_count, ctrl->level);
+
+      node_push (symbol, identifier, label_id,
+          category, TYPE_CONTROL,
+          ctrl->level, NO_LOCATION, ctrl->label_count);
+
+      node_push (forward, identifier, get_line(label_nada, "", identifier, 0),
+          category, TYPE_CONTROL,
+          NO_LEVEL, NO_LOCATION, NO_LABEL);
     }
-
-    if (exists == 1) {
-        char* label_nada = malloc (sizeof(char) * TOKEN_SIZE);
-
-        ctrl->level++;
-        ctrl->location = 0;
-
-        sprintf (label_nada, "R%02d: ENPR %d",
-            r->label, r->level);
-
-        print_line (label_nada, "", r->token_id, 0);
-    } else {
-
-        /* Entra no procedimento. */
-
-        char* label_id = malloc (sizeof(char) * TOKEN_SIZE);
-        char* label_nada = malloc (sizeof(char) * TOKEN_SIZE);
-
-        ctrl->label_count++;
-        ctrl->level++;
-        ctrl->location = 0;
-
-        sprintf (label_id, "R%02d", ctrl->label_count);
-        sprintf (label_nada, "R%02d: ENPR %d",
-            ctrl->label_count, ctrl->level);
-
-        node_push (symbol, identifier, label_id,
-            category, TYPE_CONTROL,
-            ctrl->level, NO_LOCATION, ctrl->label_count);
-
-        print_line (label_nada, "", identifier, 0);
-
-    }
-
 }
 
-void parser_forward_identification (int category, char* identifier) {
+void print_routine(int category, char *identifier) {
+    char* label_nada = malloc (sizeof(char) * TOKEN_SIZE);
 
-    /* Entra no procedimento. */
+    node p = node_get_tail(symbol);
 
-    char* label_id = malloc (sizeof(char) * TOKEN_SIZE);
+    while(p) {
+      if ((strcmp(p->token_id, identifier) == 0)
+          && p->category == category)
+        break;
+      else
+        p = p->prev;
+    }
 
-    ctrl->label_count++;
+    if (p) {
+      ctrl->level++;
+      ctrl->location = 0;
 
-    sprintf (label_id, "R%02d", ctrl->label_count);
+      sprintf (label_nada, "R%02d: ENPR %d",
+          p->label, p->level);
 
-    node_push (symbol, identifier, label_id,
-        category, TYPE_CONTROL,
-        ctrl->level+1, NO_LOCATION, ctrl->label_count);
-
+      print_line (label_nada, "", identifier, 0);
+    } else {
+      printf("deu ruim");
+      exit(1);
+    }
 }
 
 void parser_routine_declaration () {

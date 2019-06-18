@@ -1,5 +1,10 @@
 program exemplo1 (input, output);
 var k : integer;
+procedure p(    n : integer; var g:integer); forward;
+procedure q(    m : integer);
+begin
+    p(3,k)
+end;
 procedure p(    n : integer; var g:integer);
 var h : integer;
 begin
@@ -18,5 +23,3 @@ begin
    k:=0;
    p(3,k)
 end.
-   
-      

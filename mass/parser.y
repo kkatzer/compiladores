@@ -2,7 +2,7 @@
     #include "main.h"
 %}
 
-%expect 1
+%expect 3
 
 %union {
     char str[TOKEN_SIZE];
@@ -63,6 +63,10 @@
 %type <str> addop
 %type <str> mulop
 %type <str> relop
+
+%type <str> procedure_declaration
+%type <str> procedure_heading
+%type <str> procedure_identification
 
 %start program
 
@@ -217,31 +221,30 @@ routine_declaration :
     ;
 
 procedure_declaration :
-    procedure_heading T_SEMICOLON block
-    | procedure_forward T_SEMICOLON T_FORWARD T_SEMICOLON;
+    procedure_heading T_SEMICOLON
+    {
+      print_routine(CAT_PROCEDURE, $1);
+    }
+    block
+    | procedure_heading T_SEMICOLON T_FORWARD
     ;
 
 procedure_heading :
     procedure_identification
+    {
+      strcpy($$,$1);
+    }
     | procedure_identification formal_parameter_section
+    {
+      strcpy($$,$1);
+    }
     ;
 
 procedure_identification :
     T_PROCEDURE T_IDENTIFIER
     {
         parser_routine_identification (CAT_PROCEDURE, $2);
-    }
-    ;
-
-procedure_forward :
-    procedure_forward_identification
-    | procedure_forward_identification forward_parameter_section
-    ;
-
-procedure_forward_identification :
-    T_PROCEDURE T_IDENTIFIER
-    {
-        parser_forward_identification (CAT_PROCEDURE, $2);
+        strcpy($$,$2);
     }
     ;
 
@@ -303,20 +306,6 @@ formal_parameter :
             CAT_PARAMREF, type_strtoint ($4),
             ctrl->level, NO_LOCATION, NO_LABEL);
     }
-    ;
-
-forward_parameter_section :
-    T_LPAR forward_parameter_list T_RPAR
-    ;
-
-forward_parameter_list :
-    forward_parameter
-    | forward_parameter T_SEMICOLON forward_parameter_list
-    ;
-
-forward_parameter :
-    T_IDENTIFIER T_COLON T_IDENTIFIER
-    | T_VAR T_IDENTIFIER T_COLON T_IDENTIFIER
     ;
 
 statement_part :
@@ -393,7 +382,7 @@ assignment :
     ;
 
 call_noparams :
-    T_IDENTIFIER
+    T_IDENTIFIER opt_semicolon
     {
         node p = node_get (symbol, $1);
 
@@ -422,7 +411,7 @@ call :
         }
 
     }
-    T_LPAR expression_list T_RPAR
+    T_LPAR expression_list T_RPAR opt_semicolon
     {
         node p = node_pop (call);
         p = node_get (symbol, p->token_id);
@@ -435,6 +424,10 @@ call :
             CAT_STATEMENT, TYPE_CONTROL,
             ctrl->level, ctrl->location, NO_LABEL);
     }
+    ;
+
+opt_semicolon :
+    | T_SEMICOLON
     ;
 
 goto :

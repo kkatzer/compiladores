@@ -1,5 +1,3 @@
      INPP 
      DSVS R00
-R01: ENPR 1 
-     DSVS R02
-R02: NADA 
+     RTPR 1, 0

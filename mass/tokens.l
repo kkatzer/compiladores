@@ -50,13 +50,13 @@
 "read"                  { return T_READ; }
 "goto"                  { return T_GOTO; }
 "write"                 { return T_WRITE; }
-"forward"				{ return T_FORWARD; }
+"forward"				        { return T_FORWARD; }
 
 [a-zA-Z_][a-zA-Z0-9_]*  { SAVE(yytext); return T_IDENTIFIER; }
 [0-9]+\.[0-9]*          { SAVE(yytext); return T_DOUBLE; }
 [0-9]+                  { SAVE(yytext); return T_INTEGER; }
 
-[ \t\n]                 ;
+[ \t\n]+                ;
 .                       {
                             fprintf (stderr, "Erro de sintaxe:  "
                                 "caractere '%s' inesperado na linha %d.",
